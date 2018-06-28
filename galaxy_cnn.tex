@@ -183,8 +183,8 @@ We find that dropout combined with BN -- although not recommended in the origina
 %It takes under thirty minutes on the same GPU to reach RMSE$~=0.10$ in metallicity.
 Our training methods near convergence after 10 epochs, although additional training continue to improve the loss.
 In total, the training requires 25-30 minutes on our GPU and uses under 2~GB of memory (depending on batch size).
-Predictions using TTA adds another two minutes.
-$k$-fold ensemble methods take $k$ times as long.
+$k$-fold ensemble methods take $k$ times as long to train.
+Prediction using TTA takes two minutes for our full test set of about 20,000 images, or approximately 6~milliseconds per image (or a little over 1~millisecond per image without TTA).
 Super-convergent training the network takes about 10 hours on a GPU but only yield marginal improvements over the ensemble methods (RMSE~$= 0.0828$ for super-convergent versus $0.0835$ for 5-fold).
 
 \begin{lstlisting}[language=PYTHON]
@@ -276,6 +276,8 @@ See figure for 50th percentile [O/H] predictions.
 
 
 
+
+
 \begin{figure}
 	\includegraphics[width=\columnwidth]{r-band_pred-vs-SDSS.pdf}
 	\includegraphics[width=\columnwidth]{random-forest_pred-vs-SDSS.pdf}
@@ -311,16 +313,58 @@ See figure for 50th percentile [O/H] predictions.
 
 
 \subsection{Diagnostics}\label{sec:diagnostics}
-Note by the way that photometry (via random forest) and morphology ($r$-band CNN) do not linearly add information.
-This can be demonstrated by the fact that the mean squared error (MSE) of the color images is not simply the inverse sum of the inverse MSE of the random forest (color) errors and the inverse MSE fo the $r$-band morphology.
+Note by the way that our CNN trained on color images is able to predict better than by using only photometry (via random forest) and morphology ($r$-band CNN) independently.
 Perhaps this is due to the fact that morphology is correlated with stellar population age or something else.
 Color tells us the fundamental plane of SFR-$M_*$-metallicity but is biased by age and dust.
 
 \subsection{Comparisons to Previous Works}\label{sec:previous work}
 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
+Obviously compare with Huertas-Company et al.
+Also look at Viviana's work as benchmark.
+Compare with Galaxy Zoo as well.
+Maybe CMU Deeplens paper for finding Einstein rings/arcs.
 Note work from Sara Ellison's group: 
 2016MNRAS.455..370E, 2017MNRAS.464.3796T, 2016MNRAS.457.2086T 
+
+\section{Discussion} \label{sec:discussion}
+
+
+\subsection{Mass metallicity relation + fundamental plane} 
+Are we seeing this correlation? Discuss covariance of errors in predictions
+
+Are we able to explain some of the scatter in the fundamental plane? Is our scatter \textit{lower} than that of the fundamental plane?
+
+
+\subsection{How important is morphology relative to color?}
+If the variance were to \textit{independently} scale with contributions from morphology and multiple photometric bands, then we would expect the MSE (\textit{or wait, actually the variance?}) to decrease like:
+\begin{equation}
+	{\rm MSE_{\rm gri}^{-1}} \approx {\rm MSE_{\rm photo}^{-1} + MSE_{\rm u}^2 + MSE_{\rm r}^2 + + MSE_{\rm r}^2}
+\end{equation}
+Actually, more properly:
+\begin{eqnarray}
+	\sigma_{\rm gri}^{-2} = \sigma_{\rm photo}^{-2} + \sigma_{\rm g}^{-2} + \sigma_{\rm r}^{-2} + \sigma_{\rm i}^{-2} 
+	- \left (\rho_{\rm gr}\sigma_{\rm g}\sigma_{\rm r}\right )^{-1} \nonumber\\
+	- \left (\rho_{\rm gi}\sigma_{\rm g}\sigma_{\rm i}\right )^{-1}
+	- \left (\rho_{\rm ri}\sigma_{\rm r}\sigma_{\rm i}\right )^{-1},
+\end{eqnarray}
+where we have assumed that $g$, $r$, and $i$ images are correlated with correlation coefficients given by $\rho$.
+We may actually be able to estimate $\rho$ by taking pairwise cross-correlations of different band images, e.g.,
+\begin{equation}
+\rho_{\mu \nu} = \frac{I_\mu \star I_\nu }{\sqrt{\left (I_\mu \star I_\mu \right ) \left (I_\nu \star I_\nu\right )}}.
+\end{equation}
+Here I have represented a correlation using the $\star$ symbol.
+
+
+\textbf{Also do:} Compare $r$-band vs. $gr$ (two-color) vs. $gri$ three-color imaging.
+
+
+\subsection{Does morphology explain some of the scatter in the fundamental plane?}
+
+\subsection{Can stellar population age explain some of the scatter in the fundamental plane?}
+
+\subsection{Why do CNNs work so well at predicting spectroscopic quantities?}
+Can we find a non-CNN parameter or method of explaining the scatter?
 
 \section{Future Applications}\label{sec:future}
 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
