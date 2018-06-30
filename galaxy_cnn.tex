@@ -66,7 +66,17 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
 \end{abstract}
 
 \section{Introduction}\label{sec:introduction}
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+\editorial{Things we are going to want to talk about in the introduction: Morphology-metalicity relation? There is certainly a mass-metallicity relation. Basically, we want to say why we think we can do this at all? What is the primary science driver behind why we think this will work? Is it really just the fundamental plane? We aren't telling the thing about the mass or the distance to the objects.}
+
+\editorial{I'll add some words we might want to use}
+
+Large-area sky surveys, both on-going and planned, are revolutionizing our understanding of galaxy evolution. The on going Dark Energy Survey (DES; \citealt{DES2005}) and planned Large Synoptic Survey Telescope (LSST; \citealt{LSST2012}) will survey vast swaths of the sky and create samples of galaxies much larger than any previously know. Spectroscopic follow-up will be key to a deep understanding of the properties of these galaxies, and constrain \editorial{something something}. But as the dataset continues to grow individual follow-up becomes increasingly impractical. Therefore, large spectroscopic surveys are needed to more fully understand the observable-mass relation of clusters.
+
+In this work, we propose to use supervised ML, specifically convolution neural networks, to analyze pseudo-three color images to predict galaxy metallicity.
+
+This paper is organized as follows: Section \ref{sec:CNN} we briefly introduce convolutional neural networks, discuss selection of the network's hyperparameters and outline training the network. In Section~\ref{sec:data}, we describe the acquisition and cleaning of the SDSS data sample. We present the main results in Section~\ref{sec:results} and discuss the results in the context of previous works in Section~\ref{sec:discussion}. In Section~\ref{sec:summary}, we summarize the key results and conclude.
+
+Unless otherwise noted, throughout this paper, we use a concordance cosmological model ($\Omega_\Lambda = 0.7$, $\Omega_m = 0.3$, and $H_0= 70$ \kms \mpc), assume a Chabrier initial mass function \citep{Chabrier2003}, and use AB magnitudes \citep{Oke1974}.
 
 \section{Convolutional Neural Networks}\label{sec:CNN}
 In recent years, neural networks have been able to accomplish a large number of tasks in the field of machine learning (LeCun et al. 1989).
@@ -86,7 +96,7 @@ Mini-batches are usually small ($256?$) and potentially not representative of th
 Each mini-batch is fed forward through the input layers, where a random fraction of connections $p=0.25, 0.50$ are removed between each linear layer (dropout, Hinton et al. 2012; see subsection below).
 When the feed-forward network reports a prediction, whether a single or set of quantities, then a loss/cost function is used to compute how incorrect the prediction ($\hat y$) is from the true value $y$.
 We use the root mean squared error (RMSE$~\equiv \sqrt{\langle |\hat y - y|^2\rangle}$) loss function, and seek to minimize it.
-We use gradient descent for each mini-batch to adjust each weight parameter, and each fractional contribution of loss is determined by the backpropagation algorithm (cite original, LeCun et al.). 
+We use gradient descent for each mini-batch to adjust each weight parameter, and each fractional contribution of loss is determined by the backpropagation algorithm (cite original, LeCun et al.).
 The backpropagation algorithm is simply the chain rule applied to finite derivatives, and skipped? for any non-linear layers.
 The gradient is multiplied by the \textit{learning rate}; batch-normalization is also applied in addition to a momentum term which ensures that the gradient is itself only changing slowly with each mini-batch.
 
@@ -117,7 +127,7 @@ Each image is fed into the network along with four augmented versions, thus incr
 This technique is called data augmentation, and is particularly helpful for the network to learn uncommon or unrepresented truth values (e.g., in our case, very metal-poor or metal-rich galaxies).
 Each training-augmentation is fed-forward through the network and gradient contributions are computed together as part of the same mini-batch.
 A similar process is applied to the network during predictions, which is called test-time augmentation (TTA).
-Synthetic images are generated according to the same rules applied to the training data set. 
+Synthetic images are generated according to the same rules applied to the training data set.
 The CNN predicts an ensemble average over the augmented images.
 It has been found that data augmentation improves predictions by as much as $\sim 20\%$ (cite).
 
@@ -133,7 +143,7 @@ Eventually even reduced learning rates do not permit additional improvement of t
 We instead use a method called cosine annealing, during which the learning rate is annealed continuously over one or more epochs for \textit{each} mini-batch until it eventually reaches zero.
 
 
-We employ stochastic gradient descent with restarts (SGDR), over progressively longer training cycles, and restart cosine annealing over each cycle (Leslie Smith 2015?). 
+We employ stochastic gradient descent with restarts (SGDR), over progressively longer training cycles, and restart cosine annealing over each cycle (Leslie Smith 2015?).
 For example, the first cycle comprises one epoch during which the learning rate is cosine annealed.
 It then trains for another cycle with cosine annealing, which starts at the same learning rate but is annealed over twice the duration (two epochs).
 These ``restarts'' have been shown to kick the weights configuration out of saddle points in the loss of some high-dimensional parameter space.
@@ -200,18 +210,17 @@ learn.fit(lr, 3, cycle_len=1, cycle_mult=2)
 In comparison, Huertas-Company et al. 2015 train their network for 10 days on a GPU following the Galaxy Zoo architecture.
 
 \section{Data}\label{sec:data}
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Our sample of galaxies are selected from the NYU Value Added Catalog (VAC) \editorial{cite}, to have gas phase metallicities. The metallicity estimates \citep{Tremonti2004} are derived from spectroscopic measurements and for the purposes of this work are assumed to be ``the truth.'' In addition, we take the derived stellar mass for each galaxy.
 
+We supplement the data from the VAC with data from SDSS Data Release 13 (DR13; \citealt{Albareti2017}) for each galaxy, the right ascension and declination and the magnitude in each of the five SDSS photometric bands (\sdssu, \sdssg, \sdssr, \sdssi, \sdssz), along with associated errors. We require that galaxies magnitudes are $10 < \sdssu\sdssg\sdssr\sdssi\sdssz < 25$ mag. Galaxies should have colors $0 < \sdssu-\sdssr < 6$ \editorial{why?}, high confidence ($z_{err} < 0.01$) spectroscopic redshifts greater than $0.2$, \editorial{check the petro mags and why we are using those}.
+
+The following query reproduces our input catalog:
 \begin{lstlisting}[language=SQL]
 SELECT top 100
   G.objID,
   GSI.specObjID,
   G.ra,
   G.dec,
-  S.z,
-  S.zErr,
-  S.velDisp,
-  S.velDispErr,
   G.modelMag_u,
   modelMagErr_u,
   G.modelMag_g,
@@ -222,21 +231,6 @@ SELECT top 100
   modelMagErr_i,
   G.modelMag_z,
   modelMagErr_z,
-  G.petroR50_r,
-  G.petroR90_r,
-  GSL.nii_6584_flux,
-  GSL.nii_6584_flux_err,
-  GSL.h_alpha_flux,
-  GSL.h_alpha_flux_err,
-  GSL.oiii_5007_flux,
-  GSL.oiii_5007_flux_err,
-  GSL.h_beta_flux,
-  GSL.h_beta_flux_err,
-  GSL.h_delta_flux,
-  GSL.h_delta_flux_err,
-  GSX.d4000,
-  GSX.d4000_err,
-  GSE.bptclass,
   GSE.oh_p2p5,
   GSE.oh_p16,
   GSE.oh_p50,
@@ -248,12 +242,6 @@ INTO mydb.SDSSspecgalsDR14
 FROM SpecObj as S
   JOIN Galaxy as G
   ON G.ObjID = S.bestObjID
-  JOIN GalSpecLine as GSL
-  ON GSL.specObjID = S.specObjID
-  JOIN GalSpecInfo AS GSI
-  ON GSI.specObjID = S.specObjID
-  JOIN GalSpecIndx AS GSX
-  ON GSX.specObjID = S.specObjID
   JOIN GalSpecExtra AS GSE
   ON GSE.specObjID = S.specObjID
 WHERE (G.petroMag_r > 10 AND G.petroMag_r < 18)
@@ -270,12 +258,13 @@ WHERE (G.petroMag_r > 10 AND G.petroMag_r < 18)
   AND GSE.oh_p50 != -9999
 \end{lstlisting}
 
+From this input catalog we create RGB images with the SDSS cutout service\footnote{\url{http://skyserver.sdss.org/dr14/SkyserverWS/ImgCutout/getjpeg}}. Images are scaled to be $128\times128$ pixels in size, corresponding to $15''\times15''$ on the sky. This results in the native $0\farcs396$ pixelscale of the SDSS being rescaled to $0\farcs296$ per pixel.
+
+We create $142,176$ three color images which serve as the main data set for this work.
+
 \section{Results}\label{sec:results}
 
 See figure for 50th percentile [O/H] predictions.
-
-
-
 
 
 \begin{figure}
@@ -295,9 +284,9 @@ See figure for 50th percentile [O/H] predictions.
 %	Method & & \textit{gri} & \textit{r}-band \\
 %	\hline
 %	\underline{[O/H] 50th percentile} \\
-%	Resnet-34  &  & ??? & \textbf{0.1586} \\ 
+%	Resnet-34  &  & ??? & \textbf{0.1586} \\
 %	Resnet-34 (5-fold) &  & \textbf{0.0835} & 0.143  \\
-%	Resnet-34 (superconvergent)  &  & \textbf{0.0828} & ??? \\ 
+%	Resnet-34 (superconvergent)  &  & \textbf{0.0828} & ??? \\
 %	%Resnet-101 & & 0.086 & 0.151 \\
 %	Dieleman et al. CNN & & \\
 %	Random decision forest & & \textbf{0.1356} & 0.260 \\
@@ -324,13 +313,13 @@ Obviously compare with Huertas-Company et al.
 Also look at Viviana's work as benchmark.
 Compare with Galaxy Zoo as well.
 Maybe CMU Deeplens paper for finding Einstein rings/arcs.
-Note work from Sara Ellison's group: 
-2016MNRAS.455..370E, 2017MNRAS.464.3796T, 2016MNRAS.457.2086T 
+Note work from Sara Ellison's group:
+2016MNRAS.455..370E, 2017MNRAS.464.3796T, 2016MNRAS.457.2086T
 
 \section{Discussion} \label{sec:discussion}
 
 
-\subsection{Mass metallicity relation + fundamental plane} 
+\subsection{Mass metallicity relation + fundamental plane}
 Are we seeing this correlation? Discuss covariance of errors in predictions
 
 Are we able to explain some of the scatter in the fundamental plane? Is our scatter \textit{lower} than that of the fundamental plane?
@@ -343,7 +332,7 @@ If the variance were to \textit{independently} scale with contributions from mor
 \end{equation}
 Actually, more properly:
 \begin{eqnarray}
-	\sigma_{\rm gri}^{-2} = \sigma_{\rm photo}^{-2} + \sigma_{\rm g}^{-2} + \sigma_{\rm r}^{-2} + \sigma_{\rm i}^{-2} 
+	\sigma_{\rm gri}^{-2} = \sigma_{\rm photo}^{-2} + \sigma_{\rm g}^{-2} + \sigma_{\rm r}^{-2} + \sigma_{\rm i}^{-2}
 	- \left (\rho_{\rm gr}\sigma_{\rm g}\sigma_{\rm r}\right )^{-1} \nonumber\\
 	- \left (\rho_{\rm gi}\sigma_{\rm g}\sigma_{\rm i}\right )^{-1}
 	- \left (\rho_{\rm ri}\sigma_{\rm r}\sigma_{\rm i}\right )^{-1},
