@@ -67,7 +67,8 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
 
 \section{Introduction}\label{sec:introduction}
 \editorial{Things we are going to want to talk about in the introduction: Morphology-metalicity relation? There is certainly a mass-metallicity relation. Basically, we want to say why we think we can do this at all? What is the primary science driver behind why we think this will work? Is it really just the fundamental plane? We aren't telling the thing about the mass or the distance to the objects.}
-\editorial{I'll add some words we might want to use}
+
+
 Large-area sky surveys, both on-going and planned, are revolutionizing our understanding of galaxy evolution. The on going Dark Energy Survey (DES; \citealt{DES2005}) and planned Large Synoptic Survey Telescope (LSST; \citealt{LSST2012}) will survey vast swaths of the sky and create samples of galaxies much larger than any previously know. Spectroscopic follow-up will be key to a deep understanding of the properties of these galaxies, and constrain galaxy evolution (e.g., the mass-metallicity relation, \citealt{Tremonti+05}; or the fundamental metallicity relation, \citealt{2010paper,2011paper}). But as the dataset continues to grow individual follow-up becomes increasingly impractical. Therefore, large spectroscopic surveys are needed to more fully understand the observable-mass relation of clusters.
 In this work, we propose to use supervised ML, specifically convolution neural networks, to analyze pseudo-three color images to predict galaxy metallicity.
 This paper is organized as follows: Section \ref{sec:CNN} we briefly introduce convolutional neural networks, discuss selection of the network's hyperparameters and outline training the network. In Section~\ref{sec:data}, we describe the acquisition and cleaning of the SDSS data sample. We present the main results in Section~\ref{sec:results} and discuss the results in the context of previous works in Section~\ref{sec:discussion}. In Section~\ref{sec:summary}, we summarize the key results and conclude.
@@ -91,7 +92,7 @@ Mini-batches are usually small ($256?$) and potentially not representative of th
 Each mini-batch is fed forward through the input layers, where a random fraction of connections $p=0.25, 0.50$ are removed between each linear layer (dropout, Hinton et al. 2012; see subsection below).
 When the feed-forward network reports a prediction, whether a single or set of quantities, then a loss/cost function is used to compute how incorrect the prediction ($\hat y$) is from the true value $y$.
 We use the root mean squared error (RMSE$~\equiv \sqrt{\langle |\hat y - y|^2\rangle}$) loss function, and seek to minimize it.
-We use gradient descent for each mini-batch to adjust each weight parameter, and each fractional contribution of loss is determined by the backpropagation algorithm (cite original, LeCun et al.). 
+We use gradient descent for each mini-batch to adjust each weight parameter, and each fractional contribution of loss is determined by the backpropagation algorithm (cite original, LeCun et al.).
 The backpropagation algorithm is simply the chain rule applied to finite derivatives, and skipped? for any non-linear layers.
 The gradient is multiplied by the \textit{learning rate}; batch-normalization is also applied in addition to a momentum term which ensures that the gradient is itself only changing slowly with each mini-batch.
 
@@ -107,6 +108,7 @@ We obtain $142,176$ three color images to use as the full data set.
 We split this data set into random 60\%, 20\%, and 20\% subsets, which comprise the training, validation, and test data sets respectively.
 
 \subsection{Training in practice}
+
 
 CNNs become difficult to train after many layers are added, likely because the network has already found the best representation possible at a shallower layer, and further layers simply noisily propagate the same signal and degrade the loss.
 We select an architecture called a residual neural network, or a \textit{resnet} (He et al. 2015), which contains enhanced ``shortcut connections'' but are otherwise similar to other CNNs.
@@ -159,7 +161,7 @@ Finally, in the bottom, we show five randomly selected galaxies.
 		Five examples are shown from each of the following categories: (\textit{top}) lowest predicted metallicity, (\textit{upper center}) highest predicted metallicity, (\textit{center}) most negative $\Delta Z \equiv Z_{\rm pred} - Z_{\rm true}$, (\textit{lower center}) most positive $\Delta Z$, and (\textit{bottom}) randomly selected galaxies.}
 \end{figure*}
 
-
+We create $142,176$ three color images which serve as the main data set for this work.
 
 In the main, larger panel of Figure~\ref{fig:predicting-metallicity}, we compare the distributions of $Z_{\rm true}$ and $Z_{\rm pred}$ using a two-dimensional histogram.
 We also show the median predictions varying with binned $Z_{\rm true}$ in red, along with the scatter in RMSE (blue) and NMAD (orange), and also the one-to-one line (black).
@@ -180,21 +182,6 @@ Since the binned average NMAD depends on choice of bin size, we do not include t
 		Each horizontal line corresponds to the average scatter over the entire test data set (and global value indicated in the upper panel legend).
 		}
 \end{figure}
-
-
-
-%
-%\begin{figure}
-%	\includegraphics[width=\columnwidth]{r-band_pred-vs-SDSS.pdf}
-%	\includegraphics[width=\columnwidth]{random-forest_pred-vs-SDSS.pdf}
-%	\includegraphics[width=\columnwidth]{superconvergent-resnet34_pred-vs-SDSS.pdf}
-%	\caption{\label{prediction-truth-plots}
-%		SDSS 50th percentile values for oxygen abundance derived from spectroscopy versus trained predictions for a variety of machine learning methods.
-%		(Upper) 34-layer Resnet predictions using only \textit{r}-band imaging.
-%		(Center) Random forest predictions using only \textit{gri} photometry.
-%		(Lower) 34-layer Resnet (super-convergent training) using \textit{gri} imaging.
-%		}
-%\end{figure}
 
 
 \subsection{Diagnostics}\label{sec:diagnostics}
@@ -220,8 +207,8 @@ Obviously compare with Huertas-Company et al.
 Also look at Viviana's work as benchmark.
 Compare with Galaxy Zoo as well.
 Maybe CMU Deeplens paper for finding Einstein rings/arcs.
-Note work from Sara Ellison's group: 
-2016MNRAS.455..370E, 2017MNRAS.464.3796T, 2016MNRAS.457.2086T 
+Note work from Sara Ellison's group:
+2016MNRAS.455..370E, 2017MNRAS.464.3796T, 2016MNRAS.457.2086T
 
 %\section{Discussion} \label{sec:discussion}
 
@@ -262,7 +249,6 @@ Note work from Sara Ellison's group:
 
 Given the low scatter in metallicity residuals (predicted $-$ true), we consider if the CNN is able to accurately predict stellar mass, and then leverage the mass-metallicity relation (MMR; Tremonti et al. 2004) to infer metallicity.
 Alternatively, if SFR and $M_*$ are learned, then the fundamental metallicity relation (FMR; Mannucci et al. 2010, Lara-Lopez et al. 2010) may explain low residuals.
-
 
 If there existed a fourth parameter, perhaps morphological in nature, then the marginalized MMR or FMR over particular values of this fourth parameter should be an even tighter relationship.
 Such a result would be analogous to how the MMR at any given star formation rate (SFR) has smaller scatter than over all SFRs.
