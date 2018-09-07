@@ -68,7 +68,7 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
 \section{Introduction}\label{sec:introduction}
 \editorial{Things we are going to want to talk about in the introduction: Morphology-metalicity relation? There is certainly a mass-metallicity relation. Basically, we want to say why we think we can do this at all? What is the primary science driver behind why we think this will work? Is it really just the fundamental plane? We aren't telling the thing about the mass or the distance to the objects.}
 \editorial{I'll add some words we might want to use}
-Large-area sky surveys, both on-going and planned, are revolutionizing our understanding of galaxy evolution. The on going Dark Energy Survey (DES; \citealt{DES2005}) and planned Large Synoptic Survey Telescope (LSST; \citealt{LSST2012}) will survey vast swaths of the sky and create samples of galaxies much larger than any previously know. Spectroscopic follow-up will be key to a deep understanding of the properties of these galaxies, and constrain \editorial{something something}. But as the dataset continues to grow individual follow-up becomes increasingly impractical. Therefore, large spectroscopic surveys are needed to more fully understand the observable-mass relation of clusters.
+Large-area sky surveys, both on-going and planned, are revolutionizing our understanding of galaxy evolution. The on going Dark Energy Survey (DES; \citealt{DES2005}) and planned Large Synoptic Survey Telescope (LSST; \citealt{LSST2012}) will survey vast swaths of the sky and create samples of galaxies much larger than any previously know. Spectroscopic follow-up will be key to a deep understanding of the properties of these galaxies, and constrain galaxy evolution (e.g., the mass-metallicity relation, \citealt{Tremonti+05}; or the fundamental metallicity relation, \citealt{2010paper,2011paper}). But as the dataset continues to grow individual follow-up becomes increasingly impractical. Therefore, large spectroscopic surveys are needed to more fully understand the observable-mass relation of clusters.
 In this work, we propose to use supervised ML, specifically convolution neural networks, to analyze pseudo-three color images to predict galaxy metallicity.
 This paper is organized as follows: Section \ref{sec:CNN} we briefly introduce convolutional neural networks, discuss selection of the network's hyperparameters and outline training the network. In Section~\ref{sec:data}, we describe the acquisition and cleaning of the SDSS data sample. We present the main results in Section~\ref{sec:results} and discuss the results in the context of previous works in Section~\ref{sec:discussion}. In Section~\ref{sec:summary}, we summarize the key results and conclude.
 Unless otherwise noted, throughout this paper, we use a concordance cosmological model ($\Omega_\Lambda = 0.7$, $\Omega_m = 0.3$, and $H_0= 70$ \kms \mpc), assume a Chabrier initial mass function \citep{Chabrier2003}, and use AB magnitudes \citep{Oke1974}.
@@ -99,33 +99,37 @@ The gradient is multiplied by the \textit{learning rate}; batch-normalization is
 \section{Data and training}\label{sec:data}
 
 \subsection{SDSS images}
-Our sample of galaxies are selected from the NYU Value Added Catalog (VAC) \editorial{cite}, to have gas phase metallicities. The metallicity estimates \citep{Tremonti2004} are derived from spectroscopic measurements and for the purposes of this work are assumed to be ``the truth.'' In addition, we take the derived stellar mass for each galaxy.
-We supplement the data from the VAC with data from SDSS Data Release 13 (DR13; \citealt{Albareti2017}) for each galaxy, the right ascension and declination and the magnitude in each of the five SDSS photometric bands (\sdssu, \sdssg, \sdssr, \sdssi, \sdssz), along with associated errors. We require that galaxies magnitudes are $10 < \sdssu\sdssg\sdssr\sdssi\sdssz < 25$ mag. Galaxies should have colors $0 < \sdssu-\sdssr < 6$ \editorial{why?}, high confidence ($z_{err} < 0.01$) spectroscopic redshifts greater than $0.2$, \editorial{check the petro mags and why we are using those}.
+Our sample of galaxies are selected from the NYU Value Added Catalog (VAC) \editorial{cite}, to have gas phase metallicities. The 50th percentile metallicity estimates \citep{Tremonti2004} are derived from spectroscopic measurements and for the purposes of this work are assumed to be ``the truth.'' In addition, we take the derived stellar mass for each galaxy.
+We supplement the data from the VAC with data from SDSS Data Release 13 (DR13; \citealt{Albareti2017}) for each galaxy, the right ascension and declination and the magnitude in each of the five SDSS photometric bands (\sdssu, \sdssg, \sdssr, \sdssi, \sdssz), along with associated errors. We require that galaxies magnitudes are $10 < \sdssu\sdssg\sdssr\sdssi\sdssz < 25$ mag. Galaxies should have colors $0 < \sdssu-\sdssr < 6$ \editorial{why?}, high confidence ($z_{err} < 0.01$) spectroscopic redshifts greater than \editorial{$0.2$}, \editorial{check the petro mags and why we are using those}.
 
-From this input catalog we create RGB images with the SDSS cutout service\footnote{\url{http://skyserver.sdss.org/dr14/SkyserverWS/ImgCutout/getjpeg}}. Images are scaled to be $128\times128$ pixels in size, corresponding to $15''\times15''$ on the sky. This results in the native $0\farcs396$ pixelscale of the SDSS being rescaled to $0\farcs296$ per pixel.
-We create $142,176$ three color images which serve as the main data set for this work.
+From this input catalog we create RGB images with the SDSS cutout service\footnote{\url{http://skyserver.sdss.org/dr14/SkyserverWS/ImgCutout/getjpeg}}. Images are scaled to be $128\times128$ pixels in size, corresponding to $15''\times15''$ on the sky. The native $0\farcs396$ SDSS pixel size are rescaled to $0\farcs296$ per pixel.
+We obtain $142,176$ three color images to use as the full data set.
+We split this data set into random 60\%, 20\%, and 20\% subsets, which comprise the training, validation, and test data sets respectively.
 
 \subsection{Training in practice}
 
-%It takes under thirty minutes on the same GPU to reach RMSE$~=0.10$ in metallicity.
-Our training methods near convergence after 10 epochs, although additional training continue to improve the loss.
-In total, the training requires 25-30 minutes on our GPU and uses under 2~GB of memory (depending on batch size).
-$k$-fold ensemble methods take $k$ times as long to train.
-Prediction using TTA takes two minutes for our full test set of about 20,000 images, or approximately 6~milliseconds per image (or a little over 1~millisecond per image without TTA).
-Super-convergent training the network takes about 10 hours on a GPU but only yield marginal improvements over the ensemble methods (RMSE~$= 0.0828$ for super-convergent versus $0.0835$ for 5-fold).
+CNNs become difficult to train after many layers are added, likely because the network has already found the best representation possible at a shallower layer, and further layers simply noisily propagate the same signal and degrade the loss.
+We select an architecture called a residual neural network, or a \textit{resnet} (He et al. 2015), which contains enhanced ``shortcut connections'' but are otherwise similar to other CNNs.
+Resnets have been shown to continue learning with increasing depth without the added cost of extra parameters.
+%Therefore resnets are able to learn deep representations of the data.
+
+We use a 34-layer resnet (He et al.), whose architecture consists of three layer groups.
+Our resnet is initialized to pre-trained weights from the ImageNet data set, which consists of 1.7~million images belonging to 1000 categories of objects found on Earth (e.g., cats, horses, cars, or books).
+The earlier layer groups generally have already trained filters that represent low-level abstractions, such as edges or Gabor filters, so we first train only the last layer group of the network (and ``freeze'' the weights in the first two groups).
+By reducing the number of trainable parameters, we can rapidly approach the global loss minimum in a few number of epochs.
+We train the final layers for two epochs using a learning rate of 0.1, and then ``unfreeze'' the earlier layers and train for another eight epochs using learning rates of [0.001, 0.01, 0.1] for the first, second, and third layer group respectively.
+For more details about our training methodology, such as the use of learning rate annealing, data augmentation, dropout, batch-normalization, and other hyperparameters, see the Appendix.
+
+Our training methods near convergence after 10 epochs, and additional training only marginally improves the loss.
+In total, our training steps requires 25-30 minutes on our GPU and uses under 2~GB of memory (depending on batch size).
+%Ensemble methods take $k$ times as long to train.
+Prediction using data augmentation (see Appendix) takes two minutes for our full test set of 20,466 images, or approximately 6~milliseconds per image (or a little over 1~millisecond per image without augmentation).
+%Super-convergent training the network takes about 10 hours on a GPU but only yield marginal improvements over the ensemble methods (RMSE~$= 0.0828$ for super-convergent versus $0.0835$ for 5-fold).
 
 
 
 
-\begin{lstlisting}[language=PYTHON]
-lr = 1e-1
-learn.fit(lr, 2)
 
-lrs = [1e-3, 1e-2, 1e-1]
-learn.unfreeze()
-learn.fit(lr, 1)
-learn.fit(lr, 3, cycle_len=1, cycle_mult=2)
-\end{lstlisting}
 
 In comparison, Huertas-Company et al. 2015 train their network for 10 days on a GPU following the Galaxy Zoo architecture.
 
@@ -135,64 +139,79 @@ We evaluate predictions using not only the RMSE, which approaches the standard d
 {\rm NMAD}(x) \approx 1.4826 \times {\rm median} \big (\big|x - {\rm median }(x) \big|\big ),
 \end{equation}
 where for a Gaussian-distributed $x$, the NMAD will also approximate the standard deviation, $\sigma$.
-NMAD is outlier-insensitive for non-Gaussian distributions and is useful for comparing scatter.
+NMAD is insensitive to outliers for non-Gaussian distributions and is useful for comparing scatter.
 
 \section{Results}\label{sec:results}
 
-See figure for 50th percentile [O/H] predictions.
+Examples of the $128 \times 128$ pixel $gri$ SDSS images seen by the CNN are shown in Figure~\ref{fig:examples}.
+The upper two rows reveal the lowest and highest metallicity galaxies, respectively, predicted by the CNN, demonstrating that the network has identified bluer galaxies with irregular morphologies as low in metallicity, and redder galaxies with prominent bulges or bright nuclei as high in metallicity.
+From the examples shown, we find that these predictions are generally on target, although the CNN generally predicts from a more limited range of metallicity (i.e., $8.1 < Z_{\rm pred} < 9.2$) than is evident from the true metallicity range (where $Z_{\rm true} < 8.0$ or $Z_{\rm true} > 9.4$ is possible).
+We also give examples of the most incorrect galaxies, including those for which the CNN tried to predict too low metallicity (center row) or too high metallicity (lower center).
+The two galaxies with lowest residuals $\Delta Z \equiv Z_{\rm pred} - Z_{\rm true}$ (i.e., most underpredicted metallicities) appear to be suffering from artifacts which cause unphysical color gradients (both are labeled as quasars according to their SDSS DR14 spectra).
+Otherwise, the mistakes made by the CNN are similar to ones that human intuition are prone to make: blue, disky sources are generally thought of as lower in metallicity, and redder, more spheroidal objects tend to be higher in metallicity.
+Finally, in the bottom, we show five randomly selected galaxies.
+
+
+\begin{figure*}
+	\includegraphics[width=\textwidth]{01-prediction_examples.pdf}
+	\caption{\label{fig:examples}
+		SDSS imaging with predicted and true metallicities from the test data set. 
+		Five examples are shown from each of the following categories: (\textit{top}) lowest predicted metallicity, (\textit{upper center}) highest predicted metallicity, (\textit{center}) most negative $\Delta Z \equiv Z_{\rm pred} - Z_{\rm true}$, (\textit{lower center}) most positive $\Delta Z$, and (\textit{bottom}) randomly selected galaxies.}
+\end{figure*}
+
+
+
+In the main, larger panel of Figure~\ref{fig:predicting-metallicity}, we compare the distributions of $Z_{\rm true}$ and $Z_{\rm pred}$ using a two-dimensional histogram.
+We also show the median predictions varying with binned $Z_{\rm true}$ in red, along with the scatter in RMSE (blue) and NMAD (orange), and also the one-to-one line (black).
+The upper panel shows how the loss varies with spectroscopically derived metallicity.
+Marker sizes are proportional in area to the number of samples in each $Z_{\rm true}$ bin, and the horizontal lines are located at the average loss (RMSE or NMAD) for the full test data set.
+
+Note that the global NMAD (0.0668) is higher than the weighted average of the binned NMAD ($\sim 0.05$).
+This is due to the fact that e.g., a residual $\Delta Z \approx 0.15$ would be treated as an outlier at $Z_{\rm true} = 9.0$, where the CNN is generally accurate, but the same residual would not be rejected as an outlier using NMAD for $Z_{\rm true} = 9.5$.
+Since the binned average NMAD depends on choice of bin size, we do not include those results in our analysis.
 
 
 \begin{figure}
-	\includegraphics[width=\columnwidth]{predicted-vs-true-metallicity.png}
+	\includegraphics[width=\columnwidth]{02-prediction_128_summary.pdf}
 	\caption{\label{fig:predicting-metallicity}
-		Our main result is shown in the main (lower) panel. 
-		We show metallicity predictions from \textit{gri} imaging using a 34-layer residual convnet, compared to true metallicities from SDSS (Tremonti et al. 2004).
-		In the upper panel, we show the residual, or difference between prediction and truth values, as a function of true metallicity.
-		The size of markers is proportional to the number of galaxies in each true metallicity bin.
-		The average RMSE and outlier-insensitive NMAD for the entire test set are 0.0851 and 0.0664 respectively, and are shown as horizontal colored lines.}
-\end{figure}
-
-
-
-
-\begin{figure}
-	\includegraphics[width=\columnwidth]{r-band_pred-vs-SDSS.pdf}
-	\includegraphics[width=\columnwidth]{random-forest_pred-vs-SDSS.pdf}
-	\includegraphics[width=\columnwidth]{superconvergent-resnet34_pred-vs-SDSS.pdf}
-	\caption{\label{prediction-truth-plots}
-		SDSS 50th percentile values for oxygen abundance derived from spectroscopy versus trained predictions for a variety of machine learning methods.
-		(Upper) 34-layer Resnet predictions using only \textit{r}-band imaging.
-		(Center) Random forest predictions using only \textit{gri} photometry.
-		(Lower) 34-layer Resnet (super-convergent training) using \textit{gri} imaging.
+		Bivariate distribution of metallicity truths ($Z_{\rm true}$) and CNN predictions ($Z_{\rm pred}$) are shown in the main panel.
+		Overlaid are the predicted median metallicity (\textit{solid red line}), RMSE scatter (\textit{dashed blue line}), NMAD scatter (\textit{dashed orange line}) in bins of $Z_{\rm true}$, and a one-to-one relation (\textit{solid black line}).
+		In the upper panel, we again show the binned scatter, where the size of each marker is proportional to the number of galaxies in that bin.
+		Each horizontal line corresponds to the average scatter over the entire test data set (and global value indicated in the upper panel legend).
 		}
 \end{figure}
 
 
-%\begin{tabular}{l r  r r}
-%	Method & & \textit{gri} & \textit{r}-band \\
-%	\hline
-%	\underline{[O/H] 50th percentile} \\
-%	Resnet-34  &  & ??? & \textbf{0.1586} \\ 
-%	Resnet-34 (5-fold) &  & \textbf{0.0835} & 0.143  \\
-%	Resnet-34 (superconvergent)  &  & \textbf{0.0828} & ??? \\ 
-%	%Resnet-101 & & 0.086 & 0.151 \\
-%	Dieleman et al. CNN & & \\
-%	Random decision forest & & \textbf{0.1356} & 0.260 \\
-%	%TPOT & & 0.165 & 0.235 \\
-%	Iyer et al. SED fitting & & 0.203 & 0.300 \\
-%	Random sampling & & 0.265 & 0.265 \\
-%	%\vspace{1em} \\
-%	%\underline{$\log M_*/M_\odot$ 50th percentile} \\
-%	%Resnet-34 & & 0.223 & 0.210 \\
-%	note: also add training
-%\end{tabular}
 
+%
+%\begin{figure}
+%	\includegraphics[width=\columnwidth]{r-band_pred-vs-SDSS.pdf}
+%	\includegraphics[width=\columnwidth]{random-forest_pred-vs-SDSS.pdf}
+%	\includegraphics[width=\columnwidth]{superconvergent-resnet34_pred-vs-SDSS.pdf}
+%	\caption{\label{prediction-truth-plots}
+%		SDSS 50th percentile values for oxygen abundance derived from spectroscopy versus trained predictions for a variety of machine learning methods.
+%		(Upper) 34-layer Resnet predictions using only \textit{r}-band imaging.
+%		(Center) Random forest predictions using only \textit{gri} photometry.
+%		(Lower) 34-layer Resnet (super-convergent training) using \textit{gri} imaging.
+%		}
+%\end{figure}
 
 
 \subsection{Diagnostics}\label{sec:diagnostics}
 Note by the way that our CNN trained on color images is able to predict better than by using only photometry (via random forest) and morphology ($r$-band CNN) independently.
 Perhaps this is due to the fact that morphology is correlated with stellar population age or something else.
 Color tells us the fundamental plane of SFR-$M_*$-metallicity but is biased by age and dust.
+
+
+\begin{figure}
+	\includegraphics[width=\columnwidth]{03-resolution.pdf}
+	\caption{\label{fig:resolution}
+		The effects of image resolution on CNN performance.
+		Blue and orange circular markers indicate scatter in the residual distribution ($\Delta Z$) measured using RMSE and NMAD, respectively.
+		(Each point is analogous to the horizontal lines shown in Figure~\ref{fig:predicting-metallicity}.)
+		We also show arrows marking the ``baseline'' values for only predicting the mean of the $Z_{\rm true}$ distribution, i.e., if no information about the image is known.
+		}
+\end{figure}
 
 \subsection{Comparisons to Previous Works}\label{sec:previous work}
 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
@@ -229,13 +248,24 @@ Note work from Sara Ellison's group:
 %
 %\textbf{Also do:} Compare $r$-band vs. $gr$ (two-color) vs. $gri$ three-color imaging.
 
-\section{The mass-metallicity relation} \label{MMR}
+\section{The mass-metallicity relation} \label{sec:MMR}
+
+
+\begin{figure*}
+	\includegraphics[width=\columnwidth]{04-a-prediction_mass.pdf}
+	\includegraphics[width=\columnwidth]{04-b-prediction_mzr.pdf}
+	\caption{\label{fig:mass-metallicity}
+		In the left subplot, we show predicted against true stellar mass. 
+		Colors and marker or line styles are the same as in Figure~\ref{fig:predicting-metallicity}.
+		If the right subplot, we compare the predicted stellar mass converted to metallicity, assuming the Tremonti et al. mass-metallicity relation (MZR), with the true metallicity.}
+\end{figure*}
+
 Given the low scatter in metallicity residuals (predicted $-$ true), we consider if the CNN is able to accurately predict stellar mass, and then leverage the mass-metallicity relation (MMR; Tremonti et al. 2004) to infer metallicity.
 Alternatively, if SFR and $M_*$ are learned, then the fundamental metallicity relation (FMR; Mannucci et al. 2010, Lara-Lopez et al. 2010) may explain low residuals.
 
 
 If there existed a fourth parameter, perhaps morphological in nature, then the marginalized MMR or FMR over particular values of this fourth parameter should be an even tighter relationship.
-Such a result would be analogous to how the MMR at any controlled star formation rate (SFR) has smaller scatter than over all SFRs.
+Such a result would be analogous to how the MMR at any given star formation rate (SFR) has smaller scatter than over all SFRs.
 
 We find that the MMR constructed using SDSS-measured metallicity (via $R_{23}$) and the MMR constructed using CNN-predicted metallicity (from \textit{gri} imaging) are quantitatively different.
 In both cases we have used the GalSpecExtra catalog for stellar masses.
@@ -266,11 +296,6 @@ Then the CNN simply needs to propagate the mass prediction through the tight $\s
 M/L ratio of redder galaxies are higher at fixed luminosity (Bell \& de Jong 2001; Kauffman+03).
 
 
-\begin{figure}
-	\includegraphics[width=\columnwidth]{predicted-vs-true-mass.png}
-	\caption{\label{fig:predicting-mass}
-		Same as Figure~\ref{fig:predicting-metallicity}, except that stellar mass predictions and truths are being compared (citation?).}
-\end{figure}
 
 
 
@@ -310,11 +335,7 @@ This research made use of the {\sc IPython} package \citep{Perez2007} and {\sc m
 % If you want to present additional material which would interrupt the flow of the main paper,
 % it can be placed in an Appendix which appears after the list of references.
 
-In general, CNNs become difficult to train after many layers are added.
-We select an architecture called a residual neural network, or \textit{resnets} (He et al. 2015), which contains enhanced ``shortcut connections'' but are otherwise similar to other CNNs.
-Resnets have been shown to continue learning with increasing depth without the added cost of extra parameters.
-This is likely because the network has already found the best representation possible at a shallower layer, and further layers simply noisily propagate the same signal and degrade the loss.
-Therefore resnets are able to learn deep representations of the data.
+
 
 We find that a 34-layer resnet (Resnet-34) architecture can be trained efficiently on a Pascal P100 with 16~GB of memory.
 Using the hyperparameters described below, an epoch takes about 60~seconds to train.
