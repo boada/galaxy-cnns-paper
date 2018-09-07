@@ -161,12 +161,16 @@ Finally, in the bottom, we show five randomly selected galaxies.
 		Five examples are shown from each of the following categories: (\textit{top}) lowest predicted metallicity, (\textit{upper center}) highest predicted metallicity, (\textit{center}) most negative $\Delta Z \equiv Z_{\rm pred} - Z_{\rm true}$, (\textit{lower center}) most positive $\Delta Z$, and (\textit{bottom}) randomly selected galaxies.}
 \end{figure*}
 
-We create $142,176$ three color images which serve as the main data set for this work.
-
 In the main, larger panel of Figure~\ref{fig:predicting-metallicity}, we compare the distributions of $Z_{\rm true}$ and $Z_{\rm pred}$ using a two-dimensional histogram.
 We also show the median predictions varying with binned $Z_{\rm true}$ in red, along with the scatter in RMSE (blue) and NMAD (orange), and also the one-to-one line (black).
 The upper panel shows how the loss varies with spectroscopically derived metallicity.
 Marker sizes are proportional in area to the number of samples in each $Z_{\rm true}$ bin, and the horizontal lines are located at the average loss (RMSE or NMAD) for the full test data set.
+
+Predictions appear to be both accurate and low in scatter for galaxies with $Z_{\rm true} \approx 9.0$, which is representative of an average metallicity in the SDSS sample.
+However, the running median systematically overpredicts metallicity for intrinsically low-metallicity galaxies and underpredicts metallicity for high-metallicity galaxies.
+We find that the predicted metallicity support is smaller than the range in true metallicity, which flattens the slope of the median $Z_{\rm pred}$ versus $Z_{\rm true}$ relation relative to the one-to-one line.
+For $Z_{\rm pred} > 9.1$ or $Z_{\rm pred} < 8.5$, CNN predictions are difficult to trust, although this only comprises \editorial{20\%} of our test data set.
+
 
 Note that the global NMAD (0.0668) is higher than the weighted average of the binned NMAD ($\sim 0.05$).
 This is due to the fact that e.g., a residual $\Delta Z \approx 0.15$ would be treated as an outlier at $Z_{\rm true} = 9.0$, where the CNN is generally accurate, but the same residual would not be rejected as an outlier using NMAD for $Z_{\rm true} = 9.5$.
@@ -185,10 +189,14 @@ Since the binned average NMAD depends on choice of bin size, we do not include t
 
 
 \subsection{Diagnostics}\label{sec:diagnostics}
-Note by the way that our CNN trained on color images is able to predict better than by using only photometry (via random forest) and morphology ($r$-band CNN) independently.
-Perhaps this is due to the fact that morphology is correlated with stellar population age or something else.
-Color tells us the fundamental plane of SFR-$M_*$-metallicity but is biased by age and dust.
 
+%Note by the way that our CNN trained on color images is able to predict better than by using only photometry (via random forest) and morphology ($r$-band CNN) independently.
+%Perhaps this is due to the fact that morphology is correlated with stellar population age or something else.
+%Color tells us the fundamental plane of SFR-$M_*$-metallicity but is biased by age and dust.
+
+We consider the effects of image resolution by running the same CNN training and testing procedure on different sized images.
+Our SDSS data set has been resized to be $128\times 128$ pixels for $15\arcsec \times \arcsec$ cutouts, and we now downsample the images to $64\times 64$, $32 \times 32$, $\cdots$, $2\times 2$, and even $1\times 1$ pixel sizes.
+All images retain their three channels, so the smallest $1 \times 1$ image effectively contains three colors of the image (averaged together with its background and possible neighboring sources).
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{03-resolution.pdf}
@@ -199,6 +207,8 @@ Color tells us the fundamental plane of SFR-$M_*$-metallicity but is biased by a
 		We also show arrows marking the ``baseline'' values for only predicting the mean of the $Z_{\rm true}$ distribution, i.e., if no information about the image is known.
 		}
 \end{figure}
+
+
 
 \subsection{Comparisons to Previous Works}\label{sec:previous work}
 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
