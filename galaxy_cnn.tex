@@ -194,9 +194,10 @@ Since the binned average NMAD depends on choice of bin size, we do not include t
 %Perhaps this is due to the fact that morphology is correlated with stellar population age or something else.
 %Color tells us the fundamental plane of SFR-$M_*$-metallicity but is biased by age and dust.
 
-We consider the effects of image resolution by running the same CNN training and testing procedure on different sized images.
-Our SDSS data set has been resized to be $128\times 128$ pixels for $15\arcsec \times \arcsec$ cutouts, and we now downsample the images to $64\times 64$, $32 \times 32$, $\cdots$, $2\times 2$, and even $1\times 1$ pixel sizes.
+We consider the effects of image resolution by running the exact same CNN training and test procedure on the same images scaled to different sizes.
+Our initial results use SDSS $15\arcsec \times \arcsec$ cutouts resized to $128\times 128$ pixels, and we now downsample the images to $64\times 64$, $32 \times 32$, $\cdots$, $2\times 2$, and even $1\times 1$ pixels.
 All images retain their three channels, so the smallest $1 \times 1$ image effectively contains three colors of the image (averaged together with its background and possible neighboring sources).
+
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{03-resolution.pdf}
@@ -205,8 +206,27 @@ All images retain their three channels, so the smallest $1 \times 1$ image effec
 		Blue and orange circular markers indicate scatter in the residual distribution ($\Delta Z$) measured using RMSE and NMAD, respectively.
 		(Each point is analogous to the horizontal lines shown in Figure~\ref{fig:predicting-metallicity}.)
 		We also show arrows marking the ``baseline'' values for only predicting the mean of the $Z_{\rm true}$ distribution, i.e., if no information about the image is known.
-		}
+	}
 \end{figure}
+
+In Figure~\ref{fig:resolution}, we compare predictions with truths at each resolution by measuring the scatter in $\Delta Z$ using the RMSE and NMAD metrics.
+The global scatter is reported here, such that outliers are identified from the residual distributions over the full test set.
+Also shown is the resulting scatter in $\Delta Z$ if we had always predicted the mean value of $Z_{\rm true}$ over the data set (which is very close to the mean value of the training data set), which provides a baseline comparison to a zeroth-order prediction.
+We find that both RMSE and NMAD decrease with increasing resolution.
+The scatter is a strong function of resolution as the images are resolved from $2 \times 2$ to about $32 \times 32$.
+With further increasing resolution, improvement is still evident, although the scaling with scatter is weaker than at lower resolution.
+
+
+There appears to be a huge improvement between the baseline $Z_{\rm pred} = \langle Z_{\rm true}\rangle$ prediction and the $1\times 1$ CNN prediction, but seemingly little improvement going from $1 \times 1$ to $2\times 2$ pixel images.
+This finding should not surprise us, however.
+$1\times 1$ three-color images contain similar information to three photometric data points (although because of the averaged background and neighboring pixels, it is less useful than photometry), and three photometric data points can be used to perform a crude spectral energy distribution (SED) fit.
+The color information is useful enough to create an approximate color-magnitude diagram, and each galaxy's position in this parameter space correlates with $Z_{\rm true}$.
+The $2 \times 2$ three-color images contain four times as many pixels as the $1\times 1$ images.
+However, because there is an even number of pixels, this information is still averaged between all available pixels, as so the incremental gain is small!\footnote{There is extra information in the $2\times 2$ pixel images in non-circularly symmetric cases. For an inclined disk, it is possible to roughly determine the orientation in the sky plane, but this information is not very useful. In the case of a major merger or interacting companion, the $2\times 2$ images may be more powerful than $1 \times 1$ images.}
+
+For all CNN predictions, the NMAD is lower than the RMSE by a factor of $0.75-0.80$.
+\editorial{How can we interpret this?}
+
 
 
 
