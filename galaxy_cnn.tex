@@ -69,12 +69,16 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
 \editorial{Things we are going to want to talk about in the introduction: Morphology-metalicity relation? There is certainly a mass-metallicity relation. Basically, we want to say why we think we can do this at all? What is the primary science driver behind why we think this will work? Is it really just the fundamental plane? We aren't telling the thing about the mass or the distance to the objects.}
 
 
+\editorial{Spectral super-resolution?}
+
 Large-area sky surveys, both on-going and planned, are revolutionizing our understanding of galaxy evolution. The on going Dark Energy Survey (DES; \citealt{DES2005}) and planned Large Synoptic Survey Telescope (LSST; \citealt{LSST2012}) will survey vast swaths of the sky and create samples of galaxies much larger than any previously know. Spectroscopic follow-up will be key to a deep understanding of the properties of these galaxies, and constrain galaxy evolution (e.g., the mass-metallicity relation, \citealt{Tremonti+05}; or the fundamental metallicity relation, \citealt{2010paper,2011paper}). But as the dataset continues to grow individual follow-up becomes increasingly impractical. Therefore, large spectroscopic surveys are needed to more fully understand the observable-mass relation of clusters.
 In this work, we propose to use supervised ML, specifically convolution neural networks, to analyze pseudo-three color images to predict galaxy metallicity.
 This paper is organized as follows: Section \ref{sec:CNN} we briefly introduce convolutional neural networks, discuss selection of the network's hyperparameters and outline training the network. In Section~\ref{sec:data}, we describe the acquisition and cleaning of the SDSS data sample. We present the main results in Section~\ref{sec:results} and discuss the results in the context of previous works in Section~\ref{sec:discussion}. In Section~\ref{sec:summary}, we summarize the key results and conclude.
 Unless otherwise noted, throughout this paper, we use a concordance cosmological model ($\Omega_\Lambda = 0.7$, $\Omega_m = 0.3$, and $H_0= 70$ \kms \mpc), assume a Chabrier initial mass function \citep{Chabrier2003}, and use AB magnitudes \citep{Oke1974}.
 
-\section{Convolutional Neural Networks}\label{sec:CNN}
+\section{Methodology} \label{sec:methodology}
+
+\subsection{Convolutional neural networks}
 In recent years, neural networks have been able to accomplish a large number of tasks in the field of machine learning (LeCun et al. 1989).
 Image classification and regression problems are most readily solved by use of convolutions in mutliple layers of the network (see, e.g., Krizhevsky et al. 2012).
 Convolution neural networks (CNNs, or convnets) efficiently learn spatial relations in images whose features are about the same sizes as the convolution filters (or kernels) which are to be learned through training.
@@ -86,6 +90,9 @@ Other people have been done other cools things (like use simulated images to sel
 blah blah blah.
 Define overfitting: a specific and usually not general set of features are learned and misapplied to the test set data.
 
+
+\subsection{Training in practice} \label{sec:training}
+
 We split our training sample of $\sim 130,000$ images into sets of $90,000$ for training, $20,000$ for validation, and $20,000$ for testing.
 Training images are seen once every epoch, although usually each epoch is split into a number of mini-batches which are learned in parallel.
 Mini-batches are usually small ($256?$) and potentially not representative of the full training sample -- another technique used to prevent overfitting.
@@ -95,19 +102,6 @@ We use the root mean squared error (RMSE$~\equiv \sqrt{\langle |\hat y - y|^2\ra
 We use gradient descent for each mini-batch to adjust each weight parameter, and each fractional contribution of loss is determined by the backpropagation algorithm (cite original, LeCun et al.).
 The backpropagation algorithm is simply the chain rule applied to finite derivatives, and skipped? for any non-linear layers.
 The gradient is multiplied by the \textit{learning rate}; batch-normalization is also applied in addition to a momentum term which ensures that the gradient is itself only changing slowly with each mini-batch.
-
-
-\section{Data and training}\label{sec:data}
-
-\subsection{SDSS images}
-Our sample of galaxies are selected from the NYU Value Added Catalog (VAC) \editorial{cite}, to have gas phase metallicities. The 50th percentile metallicity estimates \citep{Tremonti2004} are derived from spectroscopic measurements and for the purposes of this work are assumed to be ``the truth.'' In addition, we take the derived stellar mass for each galaxy.
-We supplement the data from the VAC with data from SDSS Data Release 13 (DR13; \citealt{Albareti2017}) for each galaxy, the right ascension and declination and the magnitude in each of the five SDSS photometric bands (\sdssu, \sdssg, \sdssr, \sdssi, \sdssz), along with associated errors. We require that galaxies magnitudes are $10 < \sdssu\sdssg\sdssr\sdssi\sdssz < 25$ mag. Galaxies should have colors $0 < \sdssu-\sdssr < 6$ \editorial{why?}, high confidence ($z_{err} < 0.01$) spectroscopic redshifts greater than \editorial{$0.2$}, \editorial{check the petro mags and why we are using those}.
-
-From this input catalog we create RGB images with the SDSS cutout service\footnote{\url{http://skyserver.sdss.org/dr14/SkyserverWS/ImgCutout/getjpeg}}. Images are scaled to be $128\times128$ pixels in size, corresponding to $15''\times15''$ on the sky. The native $0\farcs396$ SDSS pixel size are rescaled to $0\farcs296$ per pixel.
-We obtain $142,176$ three color images to use as the full data set.
-We split this data set into random 60\%, 20\%, and 20\% subsets, which comprise the training, validation, and test data sets respectively.
-
-\subsection{Training in practice}
 
 
 CNNs become difficult to train after many layers are added, likely because the network has already found the best representation possible at a shallower layer, and further layers simply noisily propagate the same signal and degrade the loss.
@@ -129,10 +123,6 @@ Prediction using data augmentation (see Appendix) takes two minutes for our full
 %Super-convergent training the network takes about 10 hours on a GPU but only yield marginal improvements over the ensemble methods (RMSE~$= 0.0828$ for super-convergent versus $0.0835$ for 5-fold).
 
 
-
-
-
-
 In comparison, Huertas-Company et al. 2015 train their network for 10 days on a GPU following the Galaxy Zoo architecture.
 
 
@@ -143,22 +133,52 @@ We evaluate predictions using not only the RMSE, which approaches the standard d
 where for a Gaussian-distributed $x$, the NMAD will also approximate the standard deviation, $\sigma$.
 NMAD is insensitive to outliers for non-Gaussian distributions and is useful for comparing scatter.
 
+Glossary of terminology:
+\begin{itemize}
+	\item $Z_{\rm true}$ is the spectroscopically derived metallicity
+	\item $Z_{\rm pred}$ is the CNN predicted metallicity
+	\item $\Delta Z \equiv Z_{\rm pred} - Z_{\rm true}$ is the residual, or error
+	\item RMSE~$\equiv \sqrt{\langle |\hat y - y|^2\rangle}$ is the root-mean squared error. 
+	The RMSE loss function is minimized during CNN training.
+	\item NMAD~$\approx 1.4826 \times {\rm median} \big (\big|x - {\rm median }(x) \big|\big )$ is the normal median absolute deviation
+\end{itemize}
+
+
+\section{SDSS data} \label{sec:data}
+
+Our sample of galaxies are selected from the NYU Value Added Catalog (VAC) \editorial{cite}, to have gas phase metallicities. The 50th percentile metallicity estimates \citep{Tremonti2004} are derived from spectroscopic measurements and for the purposes of this work are assumed to be ``the truth.'' In addition, we take the derived stellar mass for each galaxy.
+We supplement the data from the VAC with data from SDSS Data Release 13 (DR13; \citealt{Albareti2017}) for each galaxy, the right ascension and declination and the magnitude in each of the five SDSS photometric bands (\sdssu, \sdssg, \sdssr, \sdssi, \sdssz), along with associated errors. We require that galaxies magnitudes are $10 < \sdssu\sdssg\sdssr\sdssi\sdssz < 25$ mag. Galaxies should have colors $0 < \sdssu-\sdssr < 6$ \editorial{why?}, high confidence ($z_{err} < 0.01$) spectroscopic redshifts greater than \editorial{$0.2$}, \editorial{check the petro mags and why we are using those}.
+
+From this input catalog we create RGB images with the SDSS cutout service\footnote{\url{http://skyserver.sdss.org/dr14/SkyserverWS/ImgCutout/getjpeg}}. Images are scaled to be $128\times128$ pixels in size, corresponding to $15''\times15''$ on the sky. The native $0\farcs396$ SDSS pixel size are rescaled to $0\farcs296$ per pixel.
+We obtain $142,176$ three color images to use as the full data set.
+We split this data set into random 60\%, 20\%, and 20\% subsets, which comprise the training, validation, and test data sets respectively.
+
+
 \section{Results}\label{sec:results}
 
 Examples of the $128 \times 128$ pixel $gri$ SDSS images seen by the CNN are shown in Figure~\ref{fig:examples}.
-The upper two rows reveal the lowest and highest metallicity galaxies, respectively, predicted by the CNN, demonstrating that the network has identified bluer galaxies with irregular morphologies as low in metallicity, and redder galaxies with prominent bulges or bright nuclei as high in metallicity.
-From the examples shown, we find that these predictions are generally on target, although the CNN generally predicts from a more limited range of metallicity (i.e., $8.1 < Z_{\rm pred} < 9.2$) than is evident from the true metallicity range (where $Z_{\rm true} < 8.0$ or $Z_{\rm true} > 9.4$ is possible).
-We also give examples of the most incorrect galaxies, including those for which the CNN tried to predict too low metallicity (center row) or too high metallicity (lower center).
-The two galaxies with lowest residuals $\Delta Z \equiv Z_{\rm pred} - Z_{\rm true}$ (i.e., most underpredicted metallicities) appear to be suffering from artifacts which cause unphysical color gradients (both are labeled as quasars according to their SDSS DR14 spectra).
+Rows (a) and (b) depict the galaxies with lowest predicted and lowest true metallicities, respectively.
+The CNN has associated blue, disky galaxies with low metallicities, and is generally accurate for those which it has identified to be low $Z_{\rm pred}$.
+In rows (c) and (d), we show the galaxies with highest predicted and highest true metallicities, respectively.
+Here we find that red galaxies containing prominent bulges or bright nuclei are predicted to be high in metallicity, and their predictions generally match $Z_{\rm true}$.
+The main result appears to be that galaxies predicted by our CNN to have high metallicity ($Z_{\rm pred} > 9.0$) tend to truly have high metallicity, and the equivalent for low-metallicity galaxies.
+Inversely, galaxies with the \textit{highest} or \textit{lowest} $Z_{\rm true}$ in the sample usually also yield high or low respective predicted metallicities.
+
+We will now consider examples of the most incorrectly predicted galaxies.
+In rows (e) and (f) respectively, we show instances for which the CNN predicted too low metallicity and too high metallicity.
+The two galaxies with lowest residuals $\Delta Z \equiv Z_{\rm pred} - Z_{\rm true}$ (i.e., most underpredicted metallicities) appear to be suffering from artifacts which cause unphysical color gradients.\footnote{Note that both are labeled as quasars according to their SDSS DR14 spectra. \editorial{A. Baker mentioned that it is possible some of the incorrect predictions in Figure~1 may be due to the fact that the $R_{23}$ estimator is a double-valued function, and the particular branch chosen may cause incorrect estimation of $Z_{\rm true}$. Such an effect may be possible if, e.g., one of the oxygen lines is at low SNR and the uncertainties are large.}}
 Otherwise, the mistakes made by the CNN are similar to ones that human intuition are prone to make: blue, disky sources are generally thought of as lower in metallicity, and redder, more spheroidal objects tend to be higher in metallicity.
-Finally, in the bottom, we show five randomly selected galaxies.
+
+In the bottom row (g) of Figure~\ref{fig:examples}, we show five randomly selected galaxies.
+The random SDSS assortment consists of elliptical, spiral, and possibly even an interacting pair of galaxies.
+Residuals are low (generally below 0.15~dex), and we again find that the CNN predictions follow human visual intuition.
 
 
 \begin{figure*}
-	\includegraphics[width=\textwidth]{01-prediction_examples.pdf}
+	\includegraphics[width=0.9\textwidth]{01-prediction_examples.pdf}
 	\caption{\label{fig:examples}
 		SDSS imaging with predicted and true metallicities from the test data set. 
-		Five examples are shown from each of the following categories: (\textit{top}) lowest predicted metallicity, (\textit{upper center}) highest predicted metallicity, (\textit{center}) most negative $\Delta Z \equiv Z_{\rm pred} - Z_{\rm true}$, (\textit{lower center}) most positive $\Delta Z$, and (\textit{bottom}) randomly selected galaxies.}
+		Five examples are shown from each of the following categories: (a) lowest predicted metallicity, (b) lowest true metallicity, (c) highest predicted metallicity, (d) highest true metallicity, (e) most negative $\Delta Z \equiv Z_{\rm pred} - Z_{\rm true}$, (f) most positive $\Delta Z$, and (g) randomly selected galaxies.}
 \end{figure*}
 
 In the main, larger panel of Figure~\ref{fig:predicting-metallicity}, we compare the distributions of $Z_{\rm true}$ and $Z_{\rm pred}$ using a two-dimensional histogram.
@@ -172,10 +192,20 @@ We find that the predicted metallicity support is smaller than the range in true
 For $Z_{\rm pred} > 9.1$ or $Z_{\rm pred} < 8.5$, CNN predictions are difficult to trust, although this only comprises \editorial{20\%} of our test data set.
 
 
-Note that the global NMAD (0.0668) is higher than the weighted average of the binned NMAD ($\sim 0.05$).
-This is due to the fact that e.g., a residual $\Delta Z \approx 0.15$ would be treated as an outlier at $Z_{\rm true} = 9.0$, where the CNN is generally accurate, but the same residual would not be rejected as an outlier using NMAD for $Z_{\rm true} = 9.5$.
-Since the binned average NMAD depends on choice of bin size, we do not include those results in our analysis.
 
+\begin{figure}
+	\includegraphics[width=\columnwidth]{03-Z_distribution.pdf}
+	\caption{\label{fig:distributions}
+		The metallicity distributions.}
+\end{figure}
+
+although the CNN generally predicts from a more limited range of metallicity (i.e., $8.1 < Z_{\rm pred} < 9.2$) than is evident from the true metallicity range (where $Z_{\rm true} < 8.0$ or $Z_{\rm true} > 9.4$ is possible).
+See Figure~\ref{fig:distributions} for more...
+
+
+Note that the global NMAD (0.0668) is higher than the weighted average of the binned NMAD ($\sim 0.05$).
+This is due to the fact that e.g., a residual $\Delta Z \approx 0.2$ would be treated as an outlier at $Z_{\rm true} = 9.0$, where the CNN is generally accurate, but the same residual would not be rejected as an outlier using NMAD for $Z_{\rm true} = 8.5$.
+Since the binned average NMAD depends on choice of bin size, we do not include those results in our analysis.
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{02-prediction_128_summary.pdf}
@@ -186,6 +216,8 @@ Since the binned average NMAD depends on choice of bin size, we do not include t
 		Each horizontal line corresponds to the average scatter over the entire test data set (and global value indicated in the upper panel legend).
 		}
 \end{figure}
+
+
 
 
 \subsection{Diagnostics}\label{sec:diagnostics}
@@ -200,7 +232,7 @@ All images retain their three channels, so the smallest $1 \times 1$ image effec
 
 
 \begin{figure}
-	\includegraphics[width=\columnwidth]{03-resolution.pdf}
+	\includegraphics[width=\columnwidth]{04-resolution.pdf}
 	\caption{\label{fig:resolution}
 		The effects of image resolution on CNN performance.
 		Blue and orange circular markers indicate scatter in the residual distribution ($\Delta Z$) measured using RMSE and NMAD, respectively.
@@ -269,13 +301,21 @@ Note work from Sara Ellison's group:
 
 
 \begin{figure*}
-	\includegraphics[width=\columnwidth]{04-a-prediction_mass.pdf}
-	\includegraphics[width=\columnwidth]{04-b-prediction_mzr.pdf}
+	\includegraphics[width=\columnwidth]{05-a-prediction_mass.pdf}
+	\includegraphics[width=\columnwidth]{05-b-prediction_mzr.pdf}
 	\caption{\label{fig:mass-metallicity}
 		In the left subplot, we show predicted against true stellar mass. 
 		Colors and marker or line styles are the same as in Figure~\ref{fig:predicting-metallicity}.
 		If the right subplot, we compare the predicted stellar mass converted to metallicity, assuming the Tremonti et al. mass-metallicity relation (MZR), with the true metallicity.}
 \end{figure*}
+
+
+\begin{itemize}
+	\item $M_{\ast,\,true}$
+	\item $M_{\ast,\,pred}$
+	\item MZR, the mass-metallicity relation from Tremonti et al. (2004)
+	\item $Z_{\rm MZR} = $
+\end{itemize}
 
 Given the low scatter in metallicity residuals (predicted $-$ true), we consider if the CNN is able to accurately predict stellar mass, and then leverage the mass-metallicity relation (MMR; Tremonti et al. 2004) to infer metallicity.
 Alternatively, if SFR and $M_*$ are learned, then the fundamental metallicity relation (FMR; Mannucci et al. 2010, Lara-Lopez et al. 2010) may explain low residuals.
@@ -323,7 +363,12 @@ M/L ratio of redder galaxies are higher at fixed luminosity (Bell \& de Jong 200
 \section{Future Applications}\label{sec:future}
 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
+
+
 \section{Summary}\label{sec:summary}
+
+
+
 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 Our main conclusions are the following:
