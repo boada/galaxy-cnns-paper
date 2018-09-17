@@ -175,20 +175,20 @@ We split this data set into random 60\%, 20\%, and 20\% subsets, which comprise 
 \end{figure*}
 
 
-Examples of the $128 \times 128$ pixel $gri$ SDSS images fed into the the CNN are shown in Figure~\ref{fig:examples}.
+In Figure~\ref{fig:examples}, we show examples of $128 \times 128$ pixel $gri$ SDSS images that are evaluated by the CNN.
 Rows (a) and (b) depict the galaxies with lowest predicted and lowest true metallicities, respectively.
-The CNN has associated blue, disky galaxies with low metallicities, and is generally accurate for those which it has identified to be low $Z_{\rm pred}$.
+The CNN has associated blue, edge-on disk galaxies with low metallicities, and is generally accurate in its predictions of low $Z_{\rm pred}$.
 In rows (c) and (d), we show the galaxies with highest predicted and highest true metallicities, respectively.
-Here we find that red galaxies containing prominent bulges or bright nuclei are predicted to be high in metallicity, and their predictions generally match $Z_{\rm true}$.
-The main result appears to be that galaxies predicted by our CNN to have high metallicity ($Z_{\rm pred} > 9.0$) tend to truly have high metallicity, and the equivalent for low-metallicity galaxies.
-Inversely, galaxies with the \textit{highest} or \textit{lowest} $Z_{\rm true}$ in the sample usually also yield high or low respective predicted metallicities.
+Here we find that red galaxies containing prominent nuclei are predicted to be high in metallicity, and their predictions generally match $Z_{\rm true}$.
+Galaxies predicted by our CNN to have high metallicities ($Z_{\rm pred} > 9.0$) tend to be characterized by high $Z_{\rm true}$, and the equivalent is true for low-metallicity galaxies.
+Inversely, galaxies with the highest (lowest) \textit{true} metallicities in the sample are also predicted to have high (low) metallicities.
 Note that inclined galaxies tend to be lower in metallicity whereas face-on galaxies appear to be higher in metallicity.
-\cite{2004ApJ...613..898T} explain this correlation by suggesting that the SDSS fiber aperture captures more column of a projected edge-on disk, allowing the metal-poor outer regions to depress the metallicity.
+\cite{2004ApJ...613..898T} explain this correlation by suggesting that the SDSS fiber aperture captures more column of a projected edge-on disk, allowing the metal-poor outer regions to more easily be detected and depress $Z_{\rm true}$.
 
 We will now consider examples of the most incorrectly predicted galaxies.
-In rows (e) and (f) respectively, we show instances in which the CNN predicted too low metallicity and too high metallicity.
+In rows (e) and (f), we show instances in which the CNN predicted too low metallicity and too high metallicity, respectively.
 The two galaxies with lowest residuals $\Delta Z \equiv Z_{\rm pred} - Z_{\rm true}$ (i.e., most underpredicted metallicities) suffer from artifacts which cause unphysical color gradients.\footnote{Note that both are labeled as quasars according to their SDSS DR14 spectra. \editorial{A. Baker mentioned that it is possible some of the incorrect predictions in Figure~1 may be due to the fact that the $R_{23}$ estimator is a double-valued function, and the particular branch chosen may cause incorrect estimation of $Z_{\rm true}$. Such an effect may be possible if, e.g., one of the oxygen lines is at low SNR and the uncertainties are large.}}
-Otherwise, the mistakes made by the CNN are similar to ones that human intuition are prone to make: blue, disky sources are generally thought of as lower in metallicity, and redder, more spheroidal objects tend to be higher in metallicity.
+Some of the other mistakes made by the CNN are similar to ones that would go against human intuition: blue, disky sources are generally thought of as lower in metallicity, and redder, more spheroidal objects tend to be higher in metallicity.
 
 In the bottom row (g) of Figure~\ref{fig:examples}, we show five randomly selected galaxies.
 The random SDSS assortment consists of elliptical, spiral, and possibly even an interacting pair of galaxies.
@@ -198,17 +198,22 @@ Residuals are low (below 0.15~dex), and we again find that the CNN predictions f
 \subsection{Comparing predicted and true metallicities}
 
 In Figure~\ref{fig:distributions}, we show the distributions of true and predicted metallicities.
-The histogram bin sizes were chosen according to the \cite{Freedman1981} rule for each distribution.
+The histogram bin sizes are chosen according to the \cite{Freedman1981} rule for each distribution.
 The discreet striping of the Tremonti et al. and Brinchmann et al. metallicity estimator appears in the $Z_{\rm true}$ distribution (shown in black) but does not manifest in our CNN predictions (shown in red).
-Because the true metallicities are discreetly valued, we expect that our distribution of $\Delta Z$ will be heavy-tailed, since predicted values still be distributed smoothly over the peaks and troughs in the $Z_{\rm true}$ distribution.
-We also expect some outlier predictions at very negative or positive $\Delta Z$ for other reasons.
+This should increase the scatter in our distribution of residuals.
+%Because the true metallicities are discreetly valued, we expect that our distribution of $\Delta Z$ will be heavy-tailed, since predicted values still be distributed smoothly over the peaks and troughs in the $Z_{\rm true}$ distribution.
+%We also expect some outlier predictions at very negative or positive $\Delta Z$ for other reasons.
 
 As we have described previously, the range of $Z_{\rm pred}$ is more limited than the range of $Z_{\rm true}$.
-Too narrow a domain in $Z_{\rm pred}$ will lead to systematic errors, as the CNN will never predict very high or very low metallicities.
+Too narrow a domain in $Z_{\rm pred}$ will lead to systematic errors, as the CNN will end up never predicting very high or very low metallicities.
 Although the two distributions are qualitatively consistent with each other at low metallicities (e.g., $Z < 8.5$).
 However, the fraction of galaxies with high $Z_{\rm true} > 9.1$ ($2573/20466 = 12.6\%$) is more abundant than the fraction with high $Z_{\rm pred} > 9.1$ ($1174/20466 = 5.7\%$).
 %However, $Z_{\rm true} > 9.1$ makes  of the test data set, whereas for only $1174/20466 = 5.7\%$ of predictions exceed $9.1$, so this discrepancy will lead to a shift toward negative residuals.
 
+We find that the mode of the predicted metallicity distribution is higher than the mode of $Z_{\rm true}$.
+This result may be a consequence of the CNN overcompensating for its systematic under-prediction of metallicity for galaxies with $Z_{\rm true} > 9.1$.
+However, its effect on the entire distribution is small, and may be remedied simply by increasing the relative fraction of very high-$Z_{\rm true}$ objects.
+We find overall good agreement between the $Z_{\rm pred}$ and $Z_{\rm true}$ distributions.
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{03-Z_distribution.pdf}
@@ -223,26 +228,27 @@ However, the fraction of galaxies with high $Z_{\rm true} > 9.1$ ($2573/20466 = 
 
 In Figure~\ref{fig:predicting-metallicity}, we compare the distributions of $Z_{\rm true}$ and $Z_{\rm pred}$ using a two-dimensional histogram (shown in grayscale in the main, larger panel).
 We also show the median predictions varying with binned $Z_{\rm true}$ (solid red line), along with the scatter in RMSE (dashed blue) and NMAD (dashed orange), and also the one-to-one line (solid black).
-Overall, the running median agrees well with the one-to-one line, although at low metallicity we find that the CNN makes makes overpredictions.
-Thus, even though $Z_{\rm pred}$ and $Z_{\rm true}$ are in agreement at $Z < 8.5$ in Figure~\ref{fig:distributions}, we now find that the low-metallicity predictions are systematically too high.
+The running median agrees well with the one-to-one line, although at low metallicity we find that the CNN makes makes overpredictions.
+%Thus, even though $Z_{\rm pred}$ and $Z_{\rm true}$ are in agreement at $Z < 8.5$ in Figure~\ref{fig:distributions}, we now find that the low-metallicity predictions are systematically too high.
 
 A histogram of metallicity residuals is shown in the inset plot of the Figure~\ref{fig:predicting-metallicity} main panel.
 The $\Delta Z$ distribution is characterized by an approximately normal distribution with a heavy tail at large positive residuals; this heavy tail is likely due to the systematic overprediction of low-$Z_{\rm true}$ galaxies.
 %The median value of the distribution is $-0.006$, and a best-fit Gaussian function yields a centroid at $-0.009$.
+There is also an overabundance of large negative $\Delta Z$ corresponding to underpredictions at high $Z_{\rm true}$, although this effect is smaller (despite appearing to be more significant in Figure~\ref{fig:distributions}).
 
 We now turn our attention to the upper panel of Figure~\ref{fig:predicting-metallicity}, which shows how the scatter varies with spectroscopically derived metallicity.
 The RMSE scatter and outlier-insensitive NMAD are both shown.
 Marker sizes are proportional in area to the number of samples in each $Z_{\rm true}$ bin, and the horizontal lines are located at the average loss (RMSE or NMAD) for the full test data set.
 
-Predictions appear to be both accurate and low in scatter for galaxies with $Z_{\rm true} \approx 9.0$, which is representative of an average metallicity in the SDSS sample.
+Predictions appear to be both accurate and low in scatter for galaxies with $Z_{\rm true} \approx 9.0$, which is representative of a typical metallicity in the SDSS sample.
 Where the predictions are systematically incorrect, we find that the RMSE increases dramatically.
 However, the same is not true for the NMAD: at $Z_{\rm true} < 8.5$, it asymptotes to $\sim 0.10$, even though the running median is incorrect by approximately the same amount!
 This is because the MAD determines the scatter about the \textit{median} and not $\Delta Z = 0$, and thus, this metric becomes somewhat unreliable when the binned samples do not have a median value close to zero.
 Fortunately, the global median of $\Delta Z$ is $-0.006$, or less than 10\% of the RMSE, and thus the global NMAD = 0.0668 is representative of the outlier-insensitive scatter for the entire test data set.
 
 This effect partly explains why the global NMAD (0.0668) is higher than the weighted average of the binned NMAD ($\sim 0.05$).
-Another reason why the global NMAD exceeds the binned NMAD average is that each binned NMAD is computed using its local scatter, and this allows for outlier rejection using a standard which varies with $Z_{\rm true}$.
-We can demonstrate this result using an example: $\Delta Z \approx 0.2$ would be treated as an $3~\sigma$ outlier at $Z_{\rm true} = 9.0$, where the CNN is generally accurate, but the same residual would not be rejected as an outlier using NMAD for $Z_{\rm true} = 8.5$.
+Also, each binned NMAD is computed using its local scatter, such that the outlier rejection  criterion varies with $Z_{\rm true}$.
+To illustrate this effect with an example: $\Delta Z \approx 0.2$ would be treated as an $3~\sigma$ outlier at $Z_{\rm true} = 9.0$, where the CNN is generally accurate, but the same residual would not be rejected as an outlier using NMAD for $Z_{\rm true} = 8.5$.
 Since the binned average NMAD depends on choice of bin size, we do not include those results in our analysis and only focus on the global NMAD.
 
 \begin{figure}
@@ -275,25 +281,31 @@ Since the binned average NMAD depends on choice of bin size, we do not include t
 	}
 \end{figure}
 
-Because our methodology is so computationally light, we can consider the effects of image resolution by running the exact same CNN training and test procedure on the same images scaled to different sizes.
-Our initial results use SDSS $15\arcsec \times \arcsec$ cutouts resized to $128\times 128$ pixels, and we now downsample the images to $64\times 64$, $32 \times 32$, $\cdots$, $2\times 2$, and even $1\times 1$ pixels.
-All images retain their three channels, so the smallest $1 \times 1$ image effectively contains three colors of the image (averaged together with its background and possible neighboring sources).
-
+Because our methodology is so computationally light, we can run the same CNN training and test procedure on images scaled to different sizes in order to consider the effects of image resolution.
+Our initial results use SDSS $15\arcsec \times 15 \arcsec$ cutouts resized to $128\times 128$ pixels, and we now downsample the same images to $64\times 64$, $32 \times 32$, $\cdots$, $2\times 2$, and even $1\times 1$ pixels via re-binning.
+All images retain their three channels, so the smallest $1 \times 1$ image effectively comprises $gri$ bands averaged together with its background and possible neighboring sources.
 
 In Figure~\ref{fig:resolution}, we show the effects of image resolution by measuring the global scatter in $\Delta Z$ using the RMSE and NMAD metrics (shown in blue and orange circular markers, respectively).
-Also shown is the scatter in $\Delta Z$ if we always predict the mean value of $Z_{\rm true}$ over the data set (shown using a square marker, and labeled ``Mean'').
-This constant prediction is effectively the worst-possible scatter, and the SDSS systematic uncertainty in $Z_{\rm true}$ of $\sim 0.03$~dex is the best-possible scatter.
+Also shown is the scatter in $\Delta Z$ if we always predict the mean value of $Z_{\rm true}$ over the data set (shown using a square marker).
+This constant prediction is effectively the worst-possible scatter, and the \cite{2004ApJ...613..898T} systematic uncertainty in $Z_{\rm true}$ of $\sim 0.03$~dex is the best-possible scatter.
 %In nearly all cases, we find that the NMAD is lower than the RMSE by a factor of $\sim 3/4$.
-We find that both RMSE and NMAD decrease with increasing resolution.
+We find that both RMSE and NMAD decrease with increasing resolution, as expected if morphology or color gradients are instrumental to predicting metallicity.
+
+
+There appears to be little improvement in scatter going from $1 \times 1$ to $2\times 2$ pixel images.
+$1\times 1$ three-color images contain similar information to three photometric data points (although because of the averaged background and neighboring pixels, it is less useful than photometry), which can be used to perform a crude spectral energy distribution (SED) fit.
+%The color information is useful enough to create an approximate color-magnitude diagram, and each galaxy's position in this parameter space correlates with $Z_{\rm true}$.
+Therefore it unsurprising that the $1 \times 1$ CNN predictions perform so much better than the baseline mean prediction.
+A $2 \times 2$ three-color image contains four times as many pixels as a $1\times 1$ image, but because the object is centered between all four pixels, this information is still averaged among all available pixels.
+Therefore, the scatter does not improve appreciably between $1 \times 1$ and $2 \times 2$ resolutions.\footnote{There is extra information in the $2\times 2$ pixel images in non-circularly symmetric cases. For an inclined disk, it is possible to roughly determine the orientation in the sky plane, but this information is not very useful. In the case of a major merger or interacting companion, the $2\times 2$ images may be more powerful than $1 \times 1$ images.}
+
 The scatter is a strong function of resolution as the images are resolved from $2 \times 2$ to about $32 \times 32$.
 With further increasing resolution, improvement is still evident, although the scaling with scatter is noticeably weaker.
-
-
-There appears to be little improvement in scatter going from $1 \times 1$ to $2\times 2$ pixel images, although in hindsight such a finding should not be a surprise.
-$1\times 1$ three-color images contain similar information to three photometric data points (although because of the averaged background and neighboring pixels, it is less useful than photometry), and three photometric data points can be used to perform a crude spectral energy distribution (SED) fit.
-The color information is useful enough to create an approximate color-magnitude diagram, and each galaxy's position in this parameter space correlates with $Z_{\rm true}$.
-The $2 \times 2$ three-color images contain four times as many pixels as the $1\times 1$ images.
-However, because there is an even number of pixels, this information is still averaged between all available pixels, as so the incremental gain is small!\footnote{There is extra information in the $2\times 2$ pixel images in non-circularly symmetric cases. For an inclined disk, it is possible to roughly determine the orientation in the sky plane, but this information is not very useful. In the case of a major merger or interacting companion, the $2\times 2$ images may be more powerful than $1 \times 1$ images.}
+Because the angular size of each image cutout stays the same, the pixel scale changes from $0.469\arcsec$/pix for $32 \times 32$ images, to $0.234\arcsec$/pix for $64 \times 64$ images, to $0.117\arcsec$/pix for $128 \times 128$ images.
+The native SDSS pixel resolution is $0.396\arcsec$/pix, such that the $64 \times 64$ and $128 \times 128$ resolutions result in the oversampling of each image!
+Thus, the plateauing of scatter with resolution is expected for images larger than $32 \times 32$.
+It is worth noting, however, that the CNN attempts to learn filters which depend on the size of the input image, and that smaller images may result in the CNN training filters that are too low in resolution to be completely effective for prediction.
+Therefore, it is also not surprising that the CNN makes incremental gains for images with greater than $32 \times 32$ pixels.
 
 \subsection{Random forest predictions}
 We also construct a random forest (RF) of decision trees in order to predict metallicity, using the implementation from \texttt{scikit-learn} (cite).
