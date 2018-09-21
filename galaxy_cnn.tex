@@ -92,8 +92,6 @@ These RGB JPEG images form the inputs into our network. No further cleaning or f
 
 \section{Training the Network}\label{sec:training}
 %The input layer is simply an image of $128\times 128$ pixels with three channels (RGB).
-\editorial{Define overfitting: a specific and usually not general set of features are learned and misapplied to the test set data.}
-
 Before the CNN can be asked to make predictions, it must be trained to learn the relationships between the input data (the images described above) and the desired out put (the metallicity). Once the network is trained we use the test data set to assess the correctness of the predictive relationships.
 
 We split our initial sample of $\sim 140,000$ images into random 60\%, 20\%, and 20\% subsets, which comprise the training, validation, and test data sets respectively. All training images are seen by the network once every training epoch \editorial{what is epoch?}, although usually each epoch is split into a number of mini-batches which are learned in parallel. Mini-batches are usually small \editorial{($\sim256$)} and potentially not representative of the full training sample -- a technique used to prevent overfitting. Overfitting is when the network learns a specific and usually not general set of features which are then misapplied to the test data set.
@@ -219,118 +217,83 @@ This result is unsurprising because the RF is supplied aperture-corrected photom
 \editorial{This result suggests that the CNN is able to learn a nontrivial representation of gas-phase metallicity based on morphology, even with extremely low-quality data.}
 
 \subsection{Comparisons to Previous Works}\label{sec:previous work}
-CNNs have been used for a wide variety of classification tasks in extragalactic astronomy, including morphological classification \citeeg{Dieleman2015, Huertas-Company2015, 2017MNRAS.464.4420S}, distinguishing between compact and extended objects \citep{Kim2017}, selecting observational samples of rare objects based on simulations \citep{Huertas-Company2018, Lanusse2017}, and visualizing high-level morphological galaxy features \citep{2018arXiv180705657D}.
+CNNs have been used for a wide variety of classification tasks in extragalactic astronomy, including morphological classification \citeeg{Dieleman2015, Huertas-Company2015, 2017MNRAS.464.4420S}, distinguishing between compact and extended objects \citep{Kim2017}, selecting observational samples of rare objects based on simulations \citep{Huertas-Company2018, Lanusse2017}, and visualizing high-level morphological galaxy features \citep{Dai2018}. These works seek to improve classification of objects into a discreet number of classes, \ie, visual morphologies. Our paper uses CNNs to tackle the different problem of regression, \ie, predict values from a continuous distribution.
 % Ellison group? 2016MNRAS.455..370E, 2017MNRAS.464.3796T, 2016MNRAS.457.2086T
 % also 2018MNRAS.476.5516B?
-These works seek to improve classification of objects into a discreet number of classes, e.g., visual morphologies. Our paper uses CNNs to tackle the different problem of regression, i.e., predict values from a continuous distribution.
 
-We have also found examples of regressing stellar properties in the astronomical machine learning literature \citep[see, e.g.,][]{2000A&A...357..197B,2018MNRAS.475.2978F}; they train on synthetic spectra and test on real data. Their predicted measurements of stellar properties, e.g., stellar effective temperature, surface gravity, or elemental abundance, are able to be derived from the available training data set. Our work is novel because we predict metallicity, a spectroscopically determined galaxy property, only using three-color images. Said another way, it is not necessarily the case that $Z$ can even be predicted from our training data. However, we have found that galaxy morphology supplements color information that is useful for predicting metallicity.
+Examples of regressing stellar properties in the astronomical ML literature \citeeg{2000A&A...357..197B, Fabbro2018}, they train on synthetic stellar spectra and test on real data. Their predicted measurements of stellar properties, \eg, stellar effective temperature, surface gravity, or elemental abundance, are able to be derived from the available training data set. Our work is novel because we predict metallicity, a spectroscopically determined galaxy property, using only three-color images. Said another way, it is not necessarily the case that $Z$ can be predicted from our training data. However, we find that galaxy morphology supplements color information that is useful for predicting metallicity.
 
-\cite{Acquaviva2016} have used a variety of machine learning methods including RFs, extremely random trees (ERTs), boosted decision trees (AdaBoost), and support vector machines (SVMs) in order to estimate galaxy metallicity. The \cite{Acquaviva2016} data set consisted of a $z \sim 0.1$ sample (with $\sim 25,000$ objects) and a $z \sim 0.2$ sample (with $\sim 3,000$ objects), each of which had five-band SDSS photometry ($ugriz$) available as features. These samples are sparsely populated at low metallicities, and they contain a smaller fraction of objects with $Z_{\rm true} < 8.5$ than our sample, but are otherwise similarly distributed in $Z_{\rm true}$ to ours.
+A similar study to this work is that of \cite{Acquaviva2016}. The authors use a variety of machine learning methods including RFs, extremely random trees (ERTs), boosted decision trees (AdaBoost), and support vector machines (SVMs) in order to estimate galaxy metallicity. The \cite{Acquaviva2016} data set consisted of a $z \sim 0.1$ sample (with $\sim 25,000$ objects) and a $z \sim 0.2$ sample (with $\sim 3,000$ objects), each of which had five-band SDSS photometry ($ugriz$) available as training data. These samples are sparsely populated at low metallicities, and they contain a smaller fraction of objects with $Z_{\rm true} < 8.5$ than our sample, but are otherwise similarly distributed in $Z_{\rm true}$ to ours. \editorial{The estimates of Z come from the same place, so we are really using a similar catalog. Why are there so much fewer objects in her catalog?}
 
-We will first compare RF results, since this technique is common to both of our analyses, and reveals important differences in our training data. Because outliers are defined differently in both works, we will use the RMSE metric to compare scatter between the two. \cite{Acquaviva2016} obtained RMSE of 0.081 and 0.093~dex when using RFs on the five-band photometry. Using the same RF approach on a larger sample, while working with only \textit{three} bands of photometric information, we find RMSE $= 0.130$ dex. Our scatter is larger than the value reported by \cite{Acquaviva2016} by a factor of $\sim 150\%$. This result may partly be explained by the fact that the $Z_{\rm true}$ distribution is narrower than for our data set, or the fact that our data set spans a broader range in galaxy redshift; however, some of this advantage is offset by our larger sample size.
+We will first compare RF results, since this technique is common to both of our analyses, and reveals important differences in our training data. Because outliers are defined differently in both works, we will use the RMSE metric to compare scatter between the two. \cite{Acquaviva2016} obtained RMSE of 0.081 and 0.093 dex when using RFs on the five-band photometry. Using the same RF approach on a larger sample, while working with only \textit{three} bands of photometric information, we find RMSE $= 0.130$ dex. Our scatter is larger than the value reported by \cite{Acquaviva2016} by a factor of $\sim 150\%$. This result may partly be explained by the fact that their $Z_{\rm true}$ distribution is narrower than for our \editorial{training?} data set, or the fact that our data set spans a broader range in galaxy redshift; however, some of this advantage is offset by our larger sample size.
 
 Ultimately, it appears the extra \sdssu and \sdssz bands supply machine learning algorithms with valuable information for predicting metallicity. % and allows for better estimation of metallicity.
 % rfs using the added photometry data output $Z_{\rm pred}$ with significantly lower scatter than our using only $gri$ bands.
-Indeed, the $u$ and $z$ bands convey information about the star formation rate (SFR) and stellar mass (\mstar). For this reason, it is possible that the RF trained on five-band photometry can estimate $Z_{\rm true}$ down to the limit of the FMR, which has very small scatter ($\sim 0.05$!dex) at given $M_{\star}$ \textit{and} SFR. The $g$, $r$, and $i$ bands are rather insensitive to the SFR, but can still provide some information about the stellar mass, and so its results are more linked to the MZR rather than the FMR.
+Indeed, the \sdssu\ and \sdssz-bands convey information about the galaxy's star formation rate (SFR) and stellar mass (\mstar) \editorial{can we find a citation for this?}. For this reason, it is possible that the RF trained on five-band photometry can estimate $Z_{\rm true}$ down to the limit of the FMR, which has very small scatter ($\sim 0.05$ dex) at given \editorial{fixed?} $M_{\star}$ \textit{and} SFR. The \sdssg, \sdssr, and \sdssi-bands are rather insensitive to the SFR, but can still provide some information about the stellar mass, and so its results are more linked to the MZR rather than the FMR.
 
-Regardless of these limitations, our CNN is able to estimate metallicity with $\Delta Z = 0.085$~dex, which is comparable to the scatter in residuals using the best algorithms from \cite{Acquaviva2016}. There is evidence that some morphological information is helping the CNN perform so well: (1) the RMSE scatter decreases with increasing image resolution, and (2) it identifies edge-on galaxies as lower-$Z_{\rm true}$ and face-on galaxies as higher-$Z_{\rm pred}$ (consistent with observational bias). Gradients in color, or identification of mergers \citep[see, e.g.,][]{2018MNRAS.479..415A} may also be helpful for predicting metallicity.
+Regardless of these limitations, our CNN is able to estimate metallicity with $\Delta Z = 0.085$ dex, which is comparable to the scatter in residuals using the best algorithms from \cite{Acquaviva2016}. There is evidence that the morphological information provided by using images rather than photometric data is helping the CNN perform so well: (1) the RMSE scatter decreases with increasing image resolution, and (2) it identifies edge-on galaxies as lower-$Z_{\rm true}$ and face-on galaxies as higher-$Z_{\rm pred}$ (consistent with observational bias). Gradients in color, or identification of mergers \citeeg{Ackermann2018} may also be helpful for predicting metallicity.
+
+\editorial{really like this section}
 
 \section{The mass-metallicity relation} \label{sec:MZR}
-The MZR describes the tight correlation between galaxy stellar mass and nebular metallicity.
-Scatter in this correlation is approximately $\sigma \approx 0.10$~dex in $Z_{\rm true}$ over the mass range $8.5 < \log (\mstar / \msol) < 11.5$ \citep{Tremonti2004}, where $\sigma$ is the standard deviation of the metallicity and is equivalent to the RMSE for a normal distribution.
-The MZR can be characterized empirically using a polynomial fit:
+The MZR describes the tight correlation between galaxy stellar mass and nebular metallicity. Scatter in this correlation is approximately $\sigma \approx 0.10$ dex in $Z_{\rm true}$ over the stellar mass range $8.5 < \log (\mstar / \msol) < 11.5$ \citep{Tremonti2004}, where $\sigma$ is the standard deviation of the metallicity and is equivalent to the RMSE for a normal distribution. The MZR can be characterized empirically using a polynomial fit:
 \begin{equation}\label{eq:mzr}
 Z = -1.492 + 1.847 \log (\mstar / \msol) - 0.08026 \left [\log(\mstar / \msol)\right ]^2.
 \end{equation}
 
-The physical interpretation of the MZR is that a galaxy's mass strongly correlations with its chemical enrichment.
-Proposed explanations of this relationship's origin include metal loss through blowout \citep[e.g.,][]{2002ApJ...581.1019G,Tremonti2004} inflow of pristine gas, or a combination of the two \citep[][]{2013ApJ...772..119L}; however, see also \cite{2013A&A...554A..58S}.
-Although the exact physical process responsible for tight, $0.10$~dex scatter in the MZR is not known, its link to SFR via the FMR is clear, as star formation leads to both metal enrichment of the ISM and stellar mass assembly.
-The FMR connects the instantaneous ($\sim 10$ Myr) SFR with the gas-phase metallicity \citep[$\sim 1$~Gyr timescales; see, e.g.,][]{2011ApJ...734...48L} and \mstar\ (i.e., the $\sim 13$~Gyr integrated SFR).
-Our CNN is better suited for predicting \mstar\ rather than SFR, using the $gri$ bands, which can only weakly probe the bluer light from young, massive stars.
-Therefore, we expect scatter from CNN predictions to be limited by the MZR (with scatter $\sigma \sim 0.10$~dex) rather than the FMR ($\sigma \sim 0.05$~dex).
-It is possible that the color and morphology, in tandem with CNN-predicted stellar mass, can be used to roughly estimate the SFR, but in this paper we will focus on only the MZR.
+The physical interpretation of the MZR is that a galaxy's \editorial{stellar?} mass strongly correlations with its chemical enrichment. Proposed explanations of this relationship's origin include metal loss through blowout \citep[e.g.,][]{2002ApJ...581.1019G,Tremonti2004} inflow of pristine gas, or a combination of the two \citep[][]{2013ApJ...772..119L}; however, see also \cite{2013A&A...554A..58S}. Although the exact physical process responsible for the low ($0.10$ dex) scatter in the MZR is not known, its link to SFR via the FMR is clear, as star formation leads to both metal enrichment of the interstellar medium and stellar mass assembly.
 
-
+The FMR connects the instantaneous ($\sim 10$ Myr) SFR with the gas-phase metallicity \citep[$\sim 1$~Gyr timescales; see, e.g.,][]{2011ApJ...734...48L} and \mstar\ (\ie, the $\sim 13$~Gyr integrated SFR). Our CNN is better suited for predicting \mstar\ rather than SFR, using the $gri$ bands, which can only weakly probe the blue light from young, massive stars. Therefore, we expect the scatter in CNN predictions to be limited by the MZR (with scatter $\sigma \sim 0.10$ dex) rather than the FMR ($\sigma \sim 0.05$~dex). It is possible that galaxy color and morphology, in tandem with CNN-predicted stellar mass, can be used to roughly estimate the SFR, but in this paper we will focus on only the MZR.
 
 %Given the low scatter in metallicity residuals (predicted $-$ true), we consider if the CNN is able to accurately predict stellar mass, and then leverage the mass-metallicity relation (MMR; Tremonti et al. 2004) to infer metallicity.
 %Alternatively, if SFR and $M_*$ are learned, then the fundamental metallicity relation (FMR; Mannucci et al. 2010, Lara-Lopez et al. 2010) may explain low residuals.
 
-
-\subsection{Predicting stellar mass}
+\subsection{Predicting Stellar Mass}
 
 \begin{figure*}
 	\includegraphics[width=\columnwidth]{05-a-prediction_mass.pdf}
 	\includegraphics[width=\columnwidth]{05-b-prediction_mzr.pdf}
 	\caption{\label{fig:mass-metallicity}
-		In the left subplot, we show predicted against true stellar mass.
-		Colors and marker or line styles are the same as in Figure~\ref{fig:predicting-metallicity}.
-		If the right subplot, we compare the predicted stellar mass converted to metallicity, assuming the Tremonti et al. mass-metallicity relation (MZR), with the true metallicity.}
+		In the left panel, we show the CNN predicted galaxy stellar mass against true stellar mass. Colors and marker or line styles are the same as in Figure~\ref{fig:predicting-metallicity}. In the right panel, we compare the predicted stellar mass converted to metallicity, assuming the \cite{Tremonti2004} MZR, with the true metallicity.}
 \end{figure*}
 
-Since the stellar mass is known to correlate so strongly with metallicity, and is easier to predict (than, e.g., SFR) from $gri$ imaging, we consider the possibility that the CNN is simply predicting $M_{\star,\rm pred}$ accurately and then learning the simple polynomial transformation in order to predict metallicity.
-We can simulate this method by training the CNN on $M_{\star, \rm true}$ and then converting its stellar mass predictions to metallicities using Equation~\ref{eq:mzr}.
+Since galaxy stellar mass is known to correlate so strongly with metallicity, and is easier to predict (than, \eg, SFR) from \sdssi\sdssr\sdssg\ imaging, we consider the possibility that the CNN is simply predicting $M_{\star,\rm pred}$ accurately and then learning the simple polynomial transformation in order to predict metallicity. We can simulate this method by training the CNN on $M_{\star, \rm true}$ and then converting the stellar mass predictions to metallicities using Equation~\ref{eq:mzr}.
 
-
-We re-run the CNN methodology to train and predict $M_{\star}$ using the 142,145 galaxies out of the original 142,186 that have available stellar mass measurements.
-These results are shown in the left panel of Figure~\ref{fig:mass-metallicity}.
-From the same subsample as before (minus three which do not have $M_{\star}$), we verify that $M_{\rm \star, true}$ median agrees with the median of $M_{\rm \star, true}$ for values between $9.0 \lesssim \log M_\star \lesssim 10.5$.
-The RMSE scatter in the $M_{\star}$ residuals is $\sim 0.22$~dex, and the NMAD is $\sim 0.20$~dex.
-The slope of the empirical MZR at $\log (M_\star / M_\odot) \sim 10$ is (0.4~dex in $Z$)/(1.0~dex in $M_{\star}$), implying that the CNN might be able to leverage the MZR and predict metallicity to $\sim 0.08$~dex (plus any intrinsic scatter in the MZR, in quadrature).
+We re-run the CNN methodology to train and predict $M_{\star}$ using the 142,145 galaxies out of the original 142,186 that have available stellar mass measurements. These results are shown in the left panel of Figure~\ref{fig:mass-metallicity}. From the same subsample as before (minus three which do not have \mstar), we verify that $M_{\rm \star, true}$ median agrees with the median of $M_{\rm \star, true}$ for values between $9.0 \lesssim \log \mstar /\msol \lesssim 10.5$. The RMSE scatter in the \mstar residuals is $\sim 0.22$ dex, and the NMAD is $\sim 0.20$ dex. The slope of the empirical MZR at $\log (\mstar / \msol) \sim 10$ is (0.4 dex in $Z$)/(1.0 dex in \mstar), implying that the CNN might be able to leverage the MZR and predict metallicity to $\sim 0.08$ dex (plus any intrinsic scatter in the MZR, in quadrature).
 %Given our CNN's ability to accurately predict $M_{\star}$, coupled with the inability of SDSS images to inform it about nebular regions or spectral lines, is it possible that the CNN's unexpectedly strong performance in predicting metallicity comes through the MZR?
 
 %One option is that the CNN learned to predict $M_{\star}$ followed by the polynomial MZR transformation (Equation~\ref{eq:mzr}).
 %We can simulate predicting metallicity this way by outputting $M_{\rm \star, pred}$, and then passing those predictions through the empirical MZR (which we will call $Z_{\rm MZR}$).
+
 We use Equation~\ref{eq:mzr} and $M_{\star,\rm pred}$ to predict metallicity, which we call $Z_{\rm MZR}$.
 In the right panel of Figure~\ref{fig:mass-metallicity}, we compare $Z_{\rm MZR}$ against $Z_{\rm true}$.
-The scatter in residuals $Z_{\rm MZR} - Z_{\rm true}$ is $0.12$~dex, which is significantly higher than the $0.085$~dex scatter reported in Section~\ref{sec:results}.
+The scatter in residuals $Z_{\rm MZR} - Z_{\rm true}$ is $0.12$ dex, which is significantly higher than the $0.085$ dex scatter reported in Section~\ref{sec:results}.
 %Intriguingly, however, the scatter is slightly lower than the $0.13{\rm ~ dex} \approx \sqrt{\rm (0.10~dex)^2 + (0.08~dex)^2}$ expected from independently adding the MZR scatter and $M_{\rm \star}$ prediction scatter in quadrature.
-\textbf{This evidence suggests that the CNN has learned to determine metallicity in a more powerful way than by simply predicting $M_{\rm \star,pred}$ and then applying a polynomial conversion.}
 
+\editorial{This evidence suggests that the CNN has learned to determine metallicity in a more powerful way than by simply predicting $M_{\rm \star,pred}$ and then applying a polynomial conversion.}
+
+\editorial{I think I am ok saying that. We shouldn't be afraid to be bold.}
 
 \subsection{Lowering the scatter in the MZR}
 \begin{figure}
 	\includegraphics[width=\columnwidth]{05-mzr.pdf}
 	\caption{\label{fig:mzr}
-		In the main panel, the predicted MZR comparing true $M_\star$ against CNN predicted $Z_{\rm pred}$ is shown in grayscale.
-		The running median (solid red) and scatter (dashed blue and orange) are shown in 0.2~dex mass bins.
-		For comparison, we also show the \citet{Tremonti2004} observed median and scatter binned by 0.1~dex in mass (solid and dashed black lines, respectively).
-		In the panel above the main figure, we show the scatter in the predicted and empirical MZR.
-		The standard deviation of the scatter in the MZR is shown as a dashed black line, while the blue and orange circles show the RMSE and NMAD, respectively, in bins of true $M_{\star}$ (and whose marker sizes are proportional to the number of galaxies in the mass bin).
-		Global scatter in the predicted MZR appears to be comparable or even lower than scatter from the true MZR.
-	}
+		In the main panel, the predicted MZR comparing true \mstar against CNN predicted $Z_{\rm pred}$ is shown in grayscale. The running median (solid red) and scatter (dashed blue and orange) are shown in 0.2 dex mass bins. For comparison, we also show the \citet{Tremonti2004} observed median and scatter binned by 0.1 dex in mass (solid and dashed black lines, respectively). In the top panel, we show the scatter in the predicted and empirical MZR. The standard deviation of the scatter in the MZR is shown as a dashed black line, while the blue and orange circles show the RMSE and NMAD, respectively, in bins of true \mstar. Marker sizes are proportional to the number of galaxies in each stellar mass bin. Global scatter in the CNN-predicted MZR appears to be comparable or even lower than scatter from the true MZR.}
 \end{figure}
 
-The RMSE = 0.085~dex difference between the true and CNN-predicted metallicities can be interpreted one of two ways:
-(1) the CNN is inaccurate, and $Z_{\rm pred}$ deviates randomly from $Z_{\rm true}$, or
-(2) the CNN is labeling $Z_{\rm pred}$ according to some other hidden variable, and $\Delta Z$ represents a non-random shift in predictions based on this variable.
-If the first scenario is true, then we would expect the random residuals to increase the scatter of known correlations such as the MZR.
-If the second is true, then we would expect the tightness of such known correlations to remain unchanged.
+The RMSE $= 0.085$ dex difference between the true and CNN-predicted metallicities can be interpreted in one of two ways: (1) the CNN is inaccurate, and $Z_{\rm pred}$ deviates randomly from $Z_{\rm true}$, or (2) the CNN is labeling $Z_{\rm pred}$ according to some other hidden variable, and $\Delta Z$ represents a non-random shift in predictions based on this variable. If the first scenario is true, then we would expect the random residuals to increase the scatter of known correlations such as the MZR. If the second is true, then we would expect the tightness of such known correlations to remain unchanged.
 
-In Figure~\ref{fig:mzr}, we show true stellar mass ($M_{\star, \rm true}$) against CNN-predicted metallicity.
-For comparison, we also overlay the \cite{Tremonti2004} MZR and its scatter ($\sigma = 0.10$~dex).
-The empirical median relation (solid black) matches our predicted MZR median (solid red), and the lines marking observed scatter (dashed black) appear to match ours as well (dashed blue and orange).
-In over, over the range $9.5 \leq \log (M_{\star, \rm true}/M_\odot) \leq 10.5$, the RMSE scatter in $Z_{\rm pred}$ (dashed blue) appears to be even tighter than the observed $\pm 1~\sigma$ (dashed black).
-The same is true for the NMAD, which is even lower over the same interval.
+In Figure~\ref{fig:mzr}, we show true stellar mass ($M_{\star, \rm true}$) against CNN-predicted metallicity. For comparison, we also overlay the \cite{Tremonti2004} MZR and its scatter ($\sigma = 0.10$ dex). The empirical median relation (solid black) matches our predicted MZR median (solid red), and the lines marking observed scatter (dashed black) appear to match observed scatter as well (dashed blue and orange). Over the range $9.5 \leq \log (M_{\star, \rm true}/\msol) \leq 10.5$, the RMSE scatter in $Z_{\rm pred}$ (dashed blue) appears to be even tighter than the observed $\pm 1-\sigma$ (dashed black). The same is true for the NMAD, which is even lower over the same interval.
 
-In the upper panel of Figure~\ref{fig:mzr}, we present the scatter in both predicted and \cite{Tremonti2004} MZR binned by mass.
-We confirm that the CNN predicts a MZR that is at most equal (and possibly smaller) in scatter than one constructed using the true metallicity.
-The mass bins for which predicted RMSE is lower than measured $\sigma$ are the ones which contain the most training examples.
-Thus, it may be possible that if our data set was augmented to include additional low- and high-$M_{\rm \star,true}$ galaxies, then the predicted RMSE (and NMAD) may be even lower.
+In the upper panel of Figure~\ref{fig:mzr}, we present the scatter in both predicted and \cite{Tremonti2004} MZR binned by mass. We confirm that the CNN predicts a MZR that is at most equal (and possibly smaller) in scatter than one constructed using the true metallicity. The stellar mass bins for which the predicted RMSE is lower than measured $\sigma$ are the ones which contain the most training examples. \editorial{feel like this sentence is missing words} Thus, it may be possible that if our data set was augmented to include additional low- and high-$M_{\rm \star,true}$ galaxies, then the predicted RMSE (and NMAD) may be even lower.
 
-The fact that a CNN trained on only $gri$ imaging is able to predict metallicity accurately enough to reproduce the MZR in terms of median and scatter is not trivial.
-The error budget is very small: $\sigma = 0.10$~dex affords only, e.g., 0.05~dex of scatter when SFR is a controlled parameter plus 0.03~dex systematic scatter in $Z_{\rm true}$ measurements, leaving only $\sim 0.08$~dex remaining for CNN systematics.
-This is somewhat compatible with our result of RMSE($\Delta Z$) $= 0.085$.
-However, this cannot be correct since it assumes that the CNN is recovering the FMR perfectly -- and as we have discussed before, it is highly unlikely that the CNN is sensitive to the SFR and therefore cannot probe the MZR at individual values of the SFR.
-The error budget for the MZR is already exceeded, too, as we have found RMSE = 0.10~dex for both the $Z_{\rm pred}-M_{\star,\rm true}$ relation and the empirical MZR ($Z_{\rm true}-M_{\star,\rm true}$) without accounting for the fact that $Z_{\rm pred}$ and $Z_{\rm true}$ differ by RMSE = 0.085~dex!
+The fact that a CNN trained on only \sdssi\sdssr\sdssg\ imaging is able to predict metallicity accurately enough to reproduce the MZR in terms of median and scatter is not trivial. The error budget is very small: $\sigma = 0.10$ dex affords only, \eg, 0.05 dex of scatter when SFR is a controlled parameter plus a 0.03 dex systematic scatter in $Z_{\rm true}$ measurements, leaving only $\sim 0.08$ dex remaining for CNN systematics.
 
-We thus find more evidence that the CNN has learned something from the SDSS $gri$ imaging that is different from, but at least as powerful as, the MZR.
-One way that this is possible is if the CNN can measure some version of metallicity that is more fundamentally linked to the stellar mass, rather than $Z_{\rm pred}$ derived from oxygen spectral lines.
-Another possibility is that the MZR is a projection of a correlation between stellar mass, metallicity, and an third parameter, perhaps one that is morphological in nature.
-If this is the case, then the \cite{Tremonti2004} MZR represents a relationship that is randomly distributed in the unknown third parameter, while our CNN would be able to stratify the MZR according to this parameter (much like how the FMR does so with the SFR).
-We are unfortunately not able to identify any hidden parameter using the current CNN methodology, but we plan to explore this topic in a future work.
+This is somewhat compatible with our result of RMSE($\Delta Z$) $= 0.085$. However, this cannot be correct since it assumes that the CNN is recovering the FMR perfectly -- and as we have discussed before, it is highly unlikely that the CNN is sensitive to the SFR and therefore cannot probe the MZR at individual values of the SFR. The error budget for the MZR is already exceeded, too, as we have found RMSE $= 0.10$ dex for both the $Z_{\rm pred}-M_{\star,\rm true}$ relation and the empirical MZR ($Z_{\rm true}-M_{\star,\rm true}$) without accounting for the fact that $Z_{\rm pred}$ and $Z_{\rm true}$ differ by RMSE $= 0.085$ dex!
 
+We thus find more evidence that the CNN has learned something from the SDSS \sdssi\sdssr\sdssg imaging that is different from, but at least as powerful as, the MZR. One way that this is possible is if the CNN can measure some version of metallicity that is more fundamentally linked to the stellar mass, rather than $Z_{\rm pred}$ as derived from oxygen spectral lines. Another possibility is that the MZR is a projection of a correlation between stellar mass, metallicity, and a third parameter, perhaps one that is morphological in nature. If this is the case, then the \cite{Tremonti2004} MZR represents a relationship that is randomly distributed in the yet unknown third parameter, while our CNN would be able to stratify the MZR according to this parameter (much like how the FMR does so with the SFR). We are unfortunately not able to identify any hidden parameter using the current CNN methodology, but we plan to explore this topic in a future work.
+
+\editorial{this is good stuff}
 
 %Note that we did not plot $M_{\rm \star,~pred}$ because any possible covariance in the predicted metallicity and stellar mass would make such a MZR appear to be more correlated than it truly is.
 
@@ -366,31 +329,29 @@ We are unfortunately not able to identify any hidden parameter using the current
 %
 %M/L ratio of redder galaxies are higher at fixed luminosity (Bell \& de Jong 2001; Kauffman+03).
 
-
-
 \section{Summary}\label{sec:summary}
-
-We have trained a deep convolutional neural network (CNN) to predict gas-phase metallicity using only $128 \times 128$ pixel, three-band (SDSS $gri$), JPG images.
+We have trained a deep, convolutional neural network (CNN) to predict galaxy gas-phase metallicity using only $128 \times 128$ pixel, three-band (\sdssi\sdssr\sdssg), JPEG images take from the SDSS.
 Our conclusions are as follows:
 \begin{enumerate}
-	\item By training for a half-hour on a GPU, the CNN can achieve $Z_{\rm pred} - Z_{\rm true}$ residuals with RMSE = $0.085$~dex (or NMAD = $0.067$~dex if outliers are removed).
+	\item By training for a half-hour on a GPU, the CNN can achieve $Z_{\rm pred} - Z_{\rm true}$ residuals with RMSE $= 0.085$ dex (or NMAD $= 0.067$ dex if outliers are removed).
 
-	\item We find that the residual scatter decreases in an expected way as resolution is increased, suggesting that the CNN is leveraging galaxy morphology to predict metallicity.
+	\item We find that the residual scatter decreases in an expected way as resolution is increased, suggesting that the CNN is leveraging the spatial information about the galaxy (morphology) to predict metallicity.
 
-	\item The CNN outperforms a random forest trained on $gri$ photometry if provided images larger than $4\times 4$ pixels, and is as accurate as a random forest trained on $ugriz$ photometry when given $128 \times 128$ pixel three-band images.
+	\item The CNN outperforms a random forest trained on $gri$ photometry if provided images larger than $4\times 4$ pixels, and is as accurate as a random forest trained on $ugriz$ photometry when given $128 \times 128$ pixel \sdssi\sdssr\sdssg\ images.
 
-	\item We find that scatter in the mass-metallicity relation (MZR) constructed using CNN-predicted metallicities is as tight as the empirical MZR ($\sigma = 0.10$~dex).
-	Because predicted metallcities differ from the ``true'' metallicities by RMSE = $0.085$~dex, the only way that the predicted MZR can have such low scatter is if the CNN has discovered a way to metallicity that is more strongly tied to the stellar mass than the nebular lines.
+	\item We find that scatter in the mass-metallicity relation (MZR) constructed using CNN-predicted metallicities is as tight as the empirical MZR ($\sigma = 0.10$ dex).	Because predicted metallcities differ from the ``true'' metallicities by RMSE $= 0.085$ dex, the only way that the predicted MZR can have such low scatter is if the CNN has learned a connection to metallicity that is more strongly linked to the stellar mass than the nebular lines.
 \end{enumerate}
 
 \editorial{Future work:}
+\editorial{not really thought about}
+
 An future extension to our work might be to repeat our analysis but to instead train on simulated data.
 Another is to feed SFR to the CNN and see if we can beat the FMR.
 We can also train CNNs individually on each mass bin and see if indeed we can predict metallicity as accurately.
 
 
 \section*{Acknowledgements}
-\editorial{The authors also wish to thank the anonymous referee whose comments and suggestions significantly improved both the quality and clarity of this work.}
+SB is supported by NASA Astrophysics Data Analysis grant number NNX14AF73G and NSF Astronomy and Astrophysics Research Program award number 1615657.
 The authors thank Eric Gawiser and Andrew Baker for helpful comments and discussions, and also thank David Shih and Matthew Buckley for use of their GPU cluster at Rutgers University High Energy Experimental Physics department. %, and Kartheik Iyer for providing SED fits as benchmark as well as for valuable discussion.
 This research made use of the {\sc IPython} package \citep{Perez2007} and {\sc matplotlib}, a Python library for publication quality graphics \citep{Hunter2007}. Funding for the SDSS and SDSS-II has been provided by the Alfred P. Sloan Foundation, the Participating Institutions, the National Science Foundation, the U.S. Department of Energy, the National Aeronautics and Space Administration, the Japanese Monbukagakusho, the Max Planck Society, and the Higher Education Funding Council for England. The SDSS Web Site is \url{http://www.sdss.org/}.
 
