@@ -102,10 +102,10 @@ Each mini-batch is fed forward through the input layers, where a random fraction
 
 We use gradient descent for each mini-batch to adjust each weight parameter, and each fractional contribution of loss is determined by the backpropagation algorithm \citep{LeCun1989}. The backpropagation algorithm is simply the chain rule applied to finite derivatives, and \editorial{skipped?} for any non-linear layers. The gradient is multiplied by the \textit{learning rate} (see Section~\ref{sec:learning rate}); batch-normalization is also applied in addition to a momentum term which ensures that the gradient is itself only changing slowly with each mini-batch. \editorial{what is momentum}
 
-CNNs become difficult to train after many layers are added, likely because the network has already found the best representation possible at a shallower layer, and deeper layers simply noisily propagate the same signal and degrade the loss. To avoid this, we select a network architecture called a residual neural network, or \textit{resnet} \citep{He2016}, which contains enhanced ``shortcut connections'' but is otherwise similar to other CNNs. Resnets have been shown to continue learning with increasing depth without the added cost of extra parameters. \editorial{cite?}
+CNNs become difficult to train after many layers are added, likely because the network has already found the best representation possible at a shallower layer, and deeper layers simply noisily propagate the same signal and degrade the loss. To avoid this, we select a network architecture called a residual neural network, or \textit{resnet} \citep{He2015}, which contains enhanced ``shortcut connections'' but is otherwise similar to other CNNs. Resnets have been shown to continue learning with increasing depth without the added cost of extra parameters. \editorial{cite?}
 %Therefore resnets are able to learn deep representations of the data.
 
-We use a 34-layer resnet \citep{He2016}, whose architecture consists of three layer groups. Our resnet is initialized to pre-trained weights from the ImageNet data set, which consists of 1.7 million images belonging to 1000 categories of objects found on Earth (\eg, cats, horses, cars, or books). The earlier layer groups generally have already trained filters that represent low-level abstractions, such as edges or Gabor filters, so we first train only the last layer group of the network by ``freezing'' the weights in the first two groups. By reducing the number of trainable parameters, we can rapidly approach the global loss minimum in a few number of epochs.
+We use a 34-layer resnet \citep{He2015}, whose architecture consists of three layer groups. Our resnet is initialized to pre-trained weights from the ImageNet data set, which consists of 1.7 million images belonging to 1000 categories of objects found on Earth (\eg, cats, horses, cars, or books). The earlier layer groups generally have already trained filters that represent low-level abstractions, such as edges or Gabor filters, so we first train only the last layer group of the network by ``freezing'' the weights in the first two groups. By reducing the number of trainable parameters, we can rapidly approach the global loss minimum in a few number of epochs.
 
 We train the final layers for two epochs using a learning rate of 0.1, and then ``unfreeze'' the earlier layers and train for another eight epochs using learning rates of [0.001, 0.01, 0.1] for the first, second, and third layer group respectively. For more details about our training methodology, such as the use of learning rate annealing, data augmentation, dropout, batch-normalization, and other hyperparameters, see Section~\ref{sec:learning rate}.
 
@@ -365,10 +365,8 @@ This research made use of the {\sc IPython} package \citep{Perez2007} and {\sc m
 \appendix
 %
 \section{Residual convolutional neural networks}
-%
-% If you want to present additional material which would interrupt the flow of the main paper,
-% it can be placed in an Appendix which appears after the list of references.
 
+We use a 34-layer residual convolutional neural network with the architecture described by \cite{He2015}, and implemented using \texttt{PyTorch} version \editorial{0.3} \citep{pytorch} provided by the \texttt{fastai} version \editorial{0.4} framework \citep{fastai}.
 
 
 We find that a 34-layer resnet (Resnet-34) architecture can be trained efficiently on a Pascal P100 with 16~GB of memory.
