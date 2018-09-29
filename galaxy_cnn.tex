@@ -36,7 +36,7 @@
 \newcommand{\editorial}[1]{\textcolor{red}{#1}}
 
 %%%%%%%%%%%%%%%%%%% TITLE PAGE %%%%%%%%%%%%%%%%%%%
-\title[Metallicity with CNNs]{Predicting Galaxy Metallicity from Three-Color Images using Convolutional Neural Networks}
+\title[Metallicity with CNNs]{Using Convolutional Neural Networks to predict Galaxy Metallicity from Three-Color Images}
 
 % The list of authors, and the short list which is used in the headers.
 % If you need two or more lines of authors, add an extra line using \newauthor
@@ -59,8 +59,13 @@ Steven~Boada$^{1}$}\vspace{0.4cm}\
 \maketitle
 
 \begin{abstract}
-\noindent
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Convolutional Neural Networks (CNNs) can be trained to predict properties of objects given only multi-channel images.
+We train a deep residual CNN to predict the gas-phase metallicity derived from spectral information ($Z \equiv 12 + \log(\rm O/H)$) using only three-band $gri$ images from the Sloan Digital Sky Survey (SDSS).
+When trained and tested on $128 \times 128$-pixel images, the root mean squared (RMSE) error of $Z_{\rm pred} - Z_{\rm true}$ is only 0.085 dex, vastly outperforming a trained random forest algorithm on the same data set (RMSE $=0.130$ dex).
+The amount of scatter in $Z_{\rm pred} - Z_{\rm true}$ decreases with increasing images resolution in an intuitive manner.
+We are able to use $Z_{\rm pred}$ and independently measured stellar mass to recover a mass metallicity relation (MZR) with $0.10$~dex scatter. 
+Because CNN-predicted $Z_{\rm pred}$ is at least as tightly correlated with stellar mass as $Z_{\rm true}$, the difference between CNN predictions and spectroscopically derived metallicity can not be purely random error.
+We cite this as evidence that CNN has learned a representation of nebular metallicity that is more correlated with the optical imaging than the oxygen spectral lines.
 \end{abstract}
 
 \section{Introduction}\label{sec:introduction}
@@ -78,38 +83,39 @@ This paper is organized as follows: In Section~\ref{sec:data}, we describe the a
 
 Unless otherwise noted, throughout this paper, we use a concordance cosmological model ($\Omega_\Lambda = 0.7$, $\Omega_m = 0.3$, and $H_0= 70$ \kms \permpc), assume a Chabrier initial mass function \citep{Chabrier2003}, and use AB magnitudes \citep{Oke1974}. 
 
-\editorial{We don't quote uncertainties at all, and label RMSE or NMAD when we discuss scatter, so I am removing the mention of $1\,\sigma$ uncertainties.}
+%\editorial{We don't quote uncertainties at all, and label RMSE or NMAD when we discuss scatter, so I am removing the mention of $1\,\sigma$ uncertainties.}
 
 \section{Data} \label{sec:data}
 To create a large training sample, we optically select galaxies from the \textit{Sloan Digital Sky Survey} (SDSS; \citealt{York2000}) DR7 MPA/JHU spectroscopic catalog \citep{Kauffmann2003a, Brinchmann2004, Salim2007}. This catalog provides us with derived spectroscopic properties, stellar mass (\mstar), and gas phase metallicity ($Z$) estimates \citep{Tremonti2004}. We supplement the data from the spectroscopic catalog with photometry in each of the five SDSS photometric bands (\sdssu, \sdssg, \sdssr, \sdssi, \sdssz), along with associated errors from SDSS DR14 \citep{Abolfathi2017}.
 
 We require that galaxies magnitudes are $10 < \sdssu \sdssg \sdssr \sdssi \sdssz < 25$ mag, to avoid saturated, and low signal-to-noise detections. Galaxies should have colors $0 < \sdssu-\sdssr < 6$, to avoid extremely blue or extremely red objects and high confidence ($z_{err} < 0.01$) spectroscopic redshifts greater than $z=0.02$. We also require that the \sdssr-band magnitude measured inside the petrosian radius (\texttt{petroMag\_r}) be less than 18 mag, corresponding to the spectroscopic flux limit.
-
 With these conditions we construct an initial sample of 142,186 galaxies.
 
-\subsection{SDSS Images}
-From this initial sample we create RGB (\sdssi\sdssr\sdssg) image cutouts of each galaxy with the SDSS cutout service\footnote{\url{http://skyserver.sdss.org/dr14/SkyserverWS/ImgCutout/getjpeg}}. Images are scaled to be $128\times128$ pixels in size, corresponding to $15''\times15''$ on the sky. The native $0\farcs396$ SDSS pixel size are rescaled to $0\farcs296$ per pixel.
+From this initial sample we create RGB (\sdssi\sdssr\sdssg) image cutouts of each galaxy with the SDSS cutout service\footnote{\url{http://skyserver.sdss.org/dr14/SkyserverWS/ImgCutout/getjpeg}}. \editorial{Since images are not always available, we are left with ??? SDSS objects with metallicity measurements and $gri$ images.} Images are scaled to be $128\times128$ pixels in size, corresponding to $15''\times15''$ on the sky. The native $0\farcs396$ SDSS pixel size are rescaled to $0\farcs296$ per pixel.
+These RGB JPG images form the inputs into our network. No further cleaning or filtering of the images is conducted.
 
-These RGB JPEG images form the inputs into our network. No further cleaning or filtering of the images is conducted.
-
-\section{Training the Network}\label{sec:training}
+\section{Methodology}\label{sec:training}
 %The input layer is simply an image of $128\times 128$ pixels with three channels (RGB).
-Before the CNN can be asked to make predictions, it must be trained to learn the relationships between the input data (the images described above) and the desired out put (the metallicity). Once the network is trained we use the test data set to assess the correctness of the predictive relationships.
+Before the CNN can be asked to make predictions, it must be trained to learn the relationships between the input data (the images described above) and the desired out put (the metallicity). Once the network is trained we use the test data set to assess the correctness of the predictive relationships. The CNN then updates the values of its parameters, or weights, in order to minimize a loss function. We use the root mean squared error,
+\begin{equation}
+\mathrm{RMSE} \equiv \sqrt{\langle |\hat y - y|^2\rangle},
+\end{equation}
+as the loss function for our trainng.
 
-We split our initial sample of $\sim 140,000$ images into random 60\%, 20\%, and 20\% subsets, which comprise the training, validation, and test data sets respectively. All training images are seen by the network once every training epoch \editorial{what is epoch?}, although usually each epoch is split into a number of mini-batches which are learned in parallel. Mini-batches are usually small \editorial{($\sim256$)} and potentially not representative of the full training sample -- a technique used to prevent overfitting. Overfitting is when the network learns a specific and usually not general set of features which are then misapplied to the test data set.
+We split our initial sample of $\sim 140,000$ images into random 60\%, 20\%, and 20\% subsets, which comprise the training, validation, and test data sets respectively. Images and $Z_{\rm true}$ answers given to the CNN in ``batches'' of 256 at a time, until the the full training data set has been used for training. Each round of training using all of the data is called an epoch.
 
-Each mini-batch is fed forward through the input layers, where a random fraction of connections $p=0.25, 0.50$ \editorial{what?} are removed between each linear layer (a ``dropout''; \citealt{Hinton2012}; see Section~\ref{sec:norm and drop}). When the feed-forward network reports a prediction, a single value or a set of values, then a loss/cost function is used to compute how incorrect the prediction ($\hat y$) is from the true value $y$. We use the root mean squared error (RMSE$~\equiv \sqrt{\langle |\hat y - y|^2\rangle}$) loss function, and seek to minimize it.
+%Each mini-batch is fed forward through the input layers, where a random fraction of connections $p=0.25, 0.50$ \editorial{what?} are removed between each linear layer (a ``dropout''; \citealt{Hinton2012}; see Section~\ref{sec:norm and drop}). When the feed-forward network reports a prediction, a single value or a set of values, then a loss/cost function is used to compute how incorrect the prediction ($\hat y$) is from the true value $y$. We use the root mean squared error (RMSE$~\equiv \sqrt{\langle |\hat y - y|^2\rangle}$) loss function, and seek to minimize it.
 
-We use gradient descent for each mini-batch to adjust each weight parameter, and each fractional contribution of loss is determined by the backpropagation algorithm \citep{LeCun1989}. The backpropagation algorithm is simply the chain rule applied to finite derivatives, and \editorial{skipped?} for any non-linear layers. The gradient is multiplied by the \textit{learning rate} (see Section~\ref{sec:learning rate}); batch-normalization is also applied in addition to a momentum term which ensures that the gradient is itself only changing slowly with each mini-batch. \editorial{what is momentum}
+We use gradient descent for each mini-batch to adjust each weight parameter, and each fractional contribution of loss is determined by the backpropagation algorithm \citep{LeCun1989}. The backpropagation algorithm is simply the chain rule applied to finite derivatives, and \editorial{skipped?} for any non-linear layers. %The gradient is multiplied by the \textit{learning rate} (see Section~\ref{sec:learning rate}); batch-normalization is also applied in addition to a momentum term which ensures that the gradient is itself only changing slowly with each mini-batch. \editorial{what is momentum}
 
-CNNs become difficult to train after many layers are added, likely because the network has already found the best representation possible at a shallower layer, and deeper layers simply noisily propagate the same signal and degrade the loss. To avoid this, we select a network architecture called a residual neural network, or \textit{resnet} \citep{He2015}, which contains enhanced ``shortcut connections'' but is otherwise similar to other CNNs. Resnets have been shown to continue learning with increasing depth without the added cost of extra parameters. \editorial{cite?}
+%CNNs become difficult to train after many layers are added, likely because the network has already found the best representation possible at a shallower layer, and deeper layers simply noisily propagate the same signal and degrade the loss. To avoid this, we select a network architecture called a residual neural network, or \textit{resnet} \citep{He2015}, which contains enhanced ``shortcut connections'' but is otherwise similar to other CNNs. Resnets have been shown to continue learning with increasing depth without the added cost of extra parameters. \editorial{cite?}
 %Therefore resnets are able to learn deep representations of the data.
 
-We use a 34-layer resnet \citep{He2015}, whose architecture consists of three layer groups. Our resnet is initialized to pre-trained weights from the ImageNet data set, which consists of 1.7 million images belonging to 1000 categories of objects found on Earth (\eg, cats, horses, cars, or books). The earlier layer groups generally have already trained filters that represent low-level abstractions, such as edges or Gabor filters, so we first train only the last layer group of the network by ``freezing'' the weights in the first two groups. By reducing the number of trainable parameters, we can rapidly approach the global loss minimum in a few number of epochs.
-
-We train the final layers for two epochs using a learning rate of 0.1, and then ``unfreeze'' the earlier layers and train for another eight epochs using learning rates of [0.001, 0.01, 0.1] for the first, second, and third layer group respectively. For more details about our training methodology, such as the use of learning rate annealing, data augmentation, dropout, batch-normalization, and other hyperparameters, see Section~\ref{sec:learning rate}.
-
-Our training methods near convergence after 10 epochs, and additional training only marginally improves the loss. In total, our training steps requires 25-30 minutes on our GPU and uses under 2~GB of memory (depending on batch size).
+We use a 34-layer residual CNN architecture \citep{He2015}, initialized to pre-trained weights from the ImageNet data set, which consists of 1.7 million images belonging to 1000 categories of objects found on Earth \citep[e.g., cats, horses, cars, or books][]{ImageNet}. %The earlier layer groups generally have already trained filters that represent low-level abstractions, such as edges or Gabor filters, so we first train only the last layer group of the network by ``freezing'' the weights in the first two groups. By reducing the number of trainable parameters, we can rapidly approach the global loss minimum in a few number of epochs.
+The CNN is trained for 10 epochs (i.e., we cycle through the entire training data set 10 times).
+For more details about the CNN architecture, hyperparameter selection, and details about the training process, see the Appendix.
+%We train the final layers for two epochs using a learning rate of 0.1, and then ``unfreeze'' the earlier layers and train for another eight epochs using learning rates of [0.001, 0.01, 0.1] for the first, second, and third layer group respectively. For more details about our training methodology, such as the use of learning rate annealing, data augmentation, dropout, batch-normalization, and other hyperparameters, see Section~\ref{sec:learning rate}.
+In total, our training process requires 25-30 minutes on our GPU and uses under 2~GB of memory.
 
 %Ensemble methods take $k$ times as long to train.
 Prediction using data augmentation (see Section~\ref{sec:data aug}) takes two minutes for our full test set of \editorial{20,466} images, or approximately 6 milliseconds per image (or a little over 1 millisecond per image without augmentation). In comparison, \cite{Huertas-Company2015} train their network for 10 days on a GPU following the Galaxy Zoo architecture.
@@ -184,9 +190,9 @@ There is also an overabundance of large negative $\Delta Z$ corresponding to und
 
 We now turn our attention to the upper panel of Figure~\ref{fig:predicting-metallicity}, which shows how the scatter varies with spectroscopically derived metallicity. The RMSE scatter and outlier-insensitive NMAD are both shown. Marker sizes are proportional in area to the number of samples in each $Z_{\rm true}$ bin, and the horizontal lines are located at the average loss (RMSE or NMAD) for the full test data set.
 
-Predictions appear to be both accurate and low in scatter for galaxies with $Z_{\rm true} \approx 9.0$, which is representative of a typical metallicity in the SDSS sample. Where the predictions are systematically incorrect, we find that the RMSE increases dramatically. However, the same is not true for the NMAD; at $Z_{\rm true} < 8.5$, it asymptotes to $\sim 0.10$, even though the running median is incorrect by approximately the same amount! This is because the NMAD determines the scatter about the \textit{median} and not $\Delta Z = 0$, and thus, this metric becomes somewhat unreliable when the binned samples do not have a median value close to zero. Fortunately, the global median of $\Delta Z$ is $-0.006$, or less than 10\% of the RMSE, and thus the global NMAD $= 0.0668$ is representative of the outlier-insensitive scatter for the entire test data set.
+Predictions appear to be both accurate and low in scatter for galaxies with $Z_{\rm true} \approx 9.0$, which is representative of a typical metallicity in the SDSS sample. Where the predictions are systematically incorrect, we find that the RMSE increases dramatically. However, the same is not true for the NMAD; at $Z_{\rm true} < 8.5$, it asymptotes to $\sim 0.10$, even though the running median is incorrect by approximately the same amount! This is because the NMAD determines the scatter about the \textit{median} and not $\Delta Z = 0$, and thus, this metric becomes somewhat unreliable when the binned samples do not have a median value close to zero. Fortunately, the global median of $\Delta Z$ is $-0.006$~dex, or less than 10\% of the RMSE, and thus the global NMAD $= 0.0668$~dex is representative of the outlier-insensitive scatter for the entire test data set.
 
-This effect partly explains why the global NMAD (0.0668) is higher than the weighted average of the binned NMAD ($\sim 0.05$).Also, each binned NMAD is computed using its local scatter, such that the outlier rejection criterion varies with $Z_{\rm true}$. To illustrate this effect with an example: $\Delta Z \approx 0.2$ would be treated as an $3\,\sigma$ outlier at $Z_{\rm true} = 9.0$, where the CNN is generally accurate, but the same residual would not be rejected as an outlier using NMAD for $Z_{\rm true} = 8.5$.
+This effect partly explains why the global NMAD (0.0668) is higher than the weighted average of the binned NMAD ($\sim 0.05$). Also, each binned NMAD is computed using its local scatter, such that the outlier rejection criterion varies with $Z_{\rm true}$. To illustrate this effect with an example: $\Delta Z \approx 0.2$~dex would be treated as an $3\,\sigma$ outlier at $Z_{\rm true} = 9.0$, where the CNN is generally accurate, but the same residual would not be rejected as an outlier using NMAD for $Z_{\rm true} = 8.5$.
 Since the binned average NMAD depends on choice of bin size, we do not include those results in our analysis and only focus on the global NMAD.
 
 \subsection{Resolution effects} \label{sec:resolution}
@@ -214,7 +220,7 @@ The scatter is a strong function of resolution as the images are resolved from $
 \subsection{Random Forest Predictions for Metallicity}
 We also construct a random forest (RF) of decision trees in order to predict metallicity using the implementation from \texttt{scikit-learn} \citep{Pedregosa2012}. Hyperparameters are selected according to the optimal RF trained by \cite{Acquaviva2016}. We use exactly the same data labels (\ie, galaxies) to train/validate or test the RF as we have used for training and testing the CNN, so that our measurements of scatter can be directly compared. However, we have used the $gri$ three-band photometry data (given in magnitudes) to train and predict metallicity. Since each galaxy only has three pieces of photometric information, it can be compared to the $1 \times 1$ three-band ``images'' processed by our CNN.
 
-We note that the RF outperforms the CNN results using $1\times 1$ and $2 \times 2$ images.
+The RF predicts metallicity with RMSE $= 0.130$~dex, which is superior to our CNN trained and tested on $1\times 1$ and $2 \times 2$ images.
 This result is unsurprising because the RF is supplied aperture-corrected photometry, whereas the CNN is provided $1 \times 1 $ \sdssi\sdssr\sdssg ``images'' whose features have been averaged with their backgrounds. $2 \times 2$ images are only marginally more informative. When the resolution is further increased to $4 \times 4$ images, then the CNN can begin to learn rough morphological features and color gradients, which is already enough to surpass the performance (measured by both RMSE and NMAD) of the RF.
 This result suggests that the CNN is able to learn a nontrivial representation of gas-phase metallicity based on three-band brightness distributions, even with extremely low-quality data.
 
@@ -364,83 +370,126 @@ This research made use of the {\sc IPython} package \citep{Perez2007} and {\sc m
 %%%%%%%%%%%%%%%%% APPENDICES %%%%%%%%%%%%%%%%%%%%%
 \appendix
 %
-\section{Residual convolutional neural networks}
+\section{Residual convolution neural network details}
 
-We use a 34-layer residual convolutional neural network with the architecture described by \cite{He2015}, and implemented using \texttt{PyTorch} version \editorial{0.3} \citep{pytorch} provided by the \texttt{fastai} version \editorial{0.4} framework \citep{fastai}.
+\subsection{Architecture}
+CNNs are divided into ``layers'' that compute the convolutions of filters, or kernels, with each of the inputs.
+A Rectified Linear Unit (ReLU) activation function is applied to the convolved output \citep[ReLUs have been shown to propagate information about the relative importances of different features, and are effective for training deep neural networks;][]{Nair2010}.
+In a residual CNN, multiple convolutional layers containing small (e.g., $3\times 3$) filters are arranged sequentially, and a final ``shortcut connection'' adds the first layer, unaltered, to the final output \citep[before the final ReLU activation; see, e.g., Figure~2 of][]{He2015}.
+Such combinations of convolutions, activations, and shortcuts are called residual building blocks.
 
-
-We find that a 34-layer resnet (Resnet-34) architecture can be trained efficiently on a Pascal P100 with 16~GB of memory.
-Using the hyperparameters described below, an epoch takes about 60~seconds to train.
-We initialize our resnet with pretrained weights from the ImageNet (Russakovsky et al. 2014; He et al. 2015) 1.7~million image data set trained to recognize 1000 classes of objects found on Earth (i.e., cats, dogs, or cars).
-In practice, the filters learned through the early layers of the pretrained CNN can be used for other image recognition tasks, aptly named ``transfer learning'' (cite).
-
-
-\subsection{Hyperparameter selection}
-
-\subsection{Data augmentation}\label{sec:data aug}
-Nearly all neural networks benefit from larger training samples because they help prevent overfitting.
-Outside of the local Universe, galaxies are seen at nearly random orientation; such invariance permits synthetic data to be generated from rotations and flips of the training images \citep[see, e.g.,][]{2014arXiv1409.1556S}.
-Each image is fed into the network along with four augmented versions, thus increasing the total training sample by a factor of five.
-%Additional small zooms of $< 5\%$ may also be applied to enlarge the training size.
-This technique is called data augmentation, and is particularly helpful for the network to learn uncommon or unrepresented truth values (e.g., in our case, very metal-poor or metal-rich galaxies).
-Each training-augmentation is fed-forward through the network and gradient contributions are computed together as part of the same mini-batch.
-A similar process is applied to the network during predictions, which is called test-time augmentation (TTA).
-Synthetic images are generated according to the same rules applied to the training data set.
-The CNN predicts an ensemble average over the augmented images.
-It has been found that data augmentation improves predictions by as much as $\sim 20\%$ (cite).
-
-\subsection{Cyclical learning rate annealing}\label{sec:learning rate}
-The learning rate determines how large of a step each network weight takes in the direction of the backpropagated error.
-A large learning rate thus forces the weights to make large updates, which generally prevents overfitting but also may cause the parameters to overshoot minima in the loss function landscape.
-A small learning rate may allow the weights to get stuck in a local minima near their initial positions, or also might cause the network to learn very slowly.
-The number of local minima increases exponentially with dimensionality (cite), so selecting a low learning rate does not ensure that the network will eventually make it to near the global minimum.
-Therefore, it is often useful to anneal, or reduce, the learning rate from a high value in the beginning -- which allows the weights to find the right ballpark values -- to a low value -- which allows the weights to take finer steps near the global minimum -- over the course of multiple training epochs.
-
-In practice, annealing can be enforced manually, e.g., the learning rate might be reduced by a factor of 10 every time the loss function plateaus over a number of epochs.
-Eventually even reduced learning rates do not permit additional improvement of the loss, and so the training period is concluded.
-We instead use a method called cosine annealing, during which the learning rate is annealed continuously over one or more epochs for \textit{each} mini-batch until it eventually reaches zero.
-
-We employ stochastic gradient descent with restarts (SGDR), over progressively longer training cycles, and restart cosine annealing over each cycle (Leslie Smith 2015?).
-For example, the first cycle comprises one epoch during which the learning rate is cosine annealed.
-It then trains for another cycle with cosine annealing, which starts at the same learning rate but is annealed over twice the duration (two epochs).
-These ``restarts'' have been shown to kick the weights configuration out of saddle points in the loss of some high-dimensional parameter space.
-Training can then proceed past what appear to be local minima but are actually saddle points (where gradient descent generally performs poorly).
+We use a 34-layer residual convolutional neural network with the architecture described by \cite{He2015}, and implemented using \texttt{PyTorch} \citep[version 0.3.1;][]{pytorch} provided by the \texttt{fastai} framework \citep[version 0.7;][]{fastai}.
+The resnet can be separated into three ``layer groups'' that roughly correspond to the levels of abstraction able to be learned by the network.
+Once an image is fed into the network, e.g., a three-channel $128\times 128$ SDSS image, it is effectively broken up into maps of how well multiple filters in a layer match the image.
+These maps are further convolved with the next layer of filters, and this process continues until the last layer group is reached.
+The first two layer groups comprise multiple residual building blocks, and the final layer group consists of two fully connected linear layers, with a ReLU activation after the first and no activation after the second.
+The last fully connected layer does not have an activation function because we are working on a regression problem, and so the weights trained in that layer should be tuned to predict metallicity in the desired range.
 
 
-\subsection{Layer learning rates}
-ADD MORE HERE
 
-Frozen training to get final activates in right ``ballpark.''
-We then unfreeze all layers and train using different rates in different layer groups.
+\subsection{Learning rates}
+
+Neural network performance tends to depend dramatically on choice of hyperparameters.
+After an image is fed forward and the residual (prediction $-$ true) value is computed, the relative contributions of error are propagated backward through the network, starting from the final layer and ending at the first layer.
+Using gradient descent of the loss (in our case, the root mean squared error), the network layers' weights are adjusted according to their error contributions multiplied by the \textit{learning rate}.
+The process of computing errors from known images and metallicities and updating weights is called \textit{training}, and when all of the training data set has been used to adjust network weights, a training \textit{epoch} is completed.
+
+The learning rate can be thought of as the step size during each weight update.
+A high learning rate allows the network to improve quickly, but at some point the large step size may become too coarse; conversely, a low learning rate might allow the network to accurately walk through the error landscape, but might take a very long time to reach convergence (or even get stuck indefinitely in a local minimum).
+We first select a learning rate by using the method described by \cite{CLR}.
+Over a number of epochs, the learning rate can be reduced (or \textit{annealed}) as the network needs to make more fine-tuned updates in order to achieve better accuracy. 
+We use a method called cosine annealing, during which the learning rate is annealed with the cosine function continuously over individual (or batches of) training examples.
+It has been shown that if the learning rate is annealed and then restarted after one or more epochs, the network is less likely to get caught in local minima and overall accuracy is improved. 
+We refer to \cite{SGDR} for details about employing cyclical learning rates and gradient descent with restarts.
+
+\editorial{We use Adam (cite), explain a bit about momentum.}
+
+
+\subsection{Training the network}
+We initialize the network using weights that have been pretrained on the 1.7~million example ImageNet data set \citep[which contains 1000 classes of objects;][]{ImageNet}.
+The network should more quickly optimize toward the global minimum loss through transfer of low-level features already learned in earlier layers of the network \citep[known as transfer learning; see, e.g.,][]{Pan2010}.
+
+We train only the final layer group for the first two epochs, which can be accomplished by not updating weights in the first two layer groups.
+The learning rate is initially set to 0.1 and then annealed according to a cosine schedule over an epoch (and then restarted to 0.1 at the beginning of the following epoch).
+We then allow the updating of weights in all layer groups while setting the learning rates to 0.001, 0.01, and 0.01 for the first, second, and last layer groups, respectively.
+This allows the final group of fully connected layers to respond strongly to different types of training examples (e.g., galaxies that appear very different in $gri$ imaging) while the earlier layers are trained very slowly in order to preserve their more general features.
+Using these layered learning rates, we train the full network using a cosine annealing schedule that spans one, one, two, and then four epochs (where the different learning rates are annealed according to the same amount).
+Using this combination of learning rate schedules, we find that our network quickly achieves low training losses (RMSE $\sim 0.085$ on validation data sets).
+Altogether, only ten epochs of training are needed (which takes under 30 minutes on a GPU).
+We find that further training does yield some improvement, but this effect plateaus around RMSE $\sim 0.083$ and takes many more hours of training.
+
 
 \subsection{Batch normalization and Dropout}\label{sec:norm and drop}
-Batch normalization (BN; 1502.03167) is a technique developed to fix the vanishing gradients problem which make deep networks inefficiently slow to train.
-The issue arises when gradients are backpropagated through deep neural networks to update weights, and loss contributions become vanishingly small except only when the weights have small magnitudes.
-Normalizing the inputs to each mini-batch mean and standard deviation somewhat remedies the problem, and has been applied to (convolutional) neural networks since the 1990s.
-BN extends this normalization to all activations in hidden layers, thus adding two hyperparameters which modulate the mean and standard deviation of each layer to zero and unity, respectively.
-The BN hyperparameters are learned for each mini-batch and are updated in addition to weight parameters during the backward pass.
+%Batch normalization is a technique developed to fix the vanishing gradients problem which make deep networks inefficiently slow to train \citep{batchnorm}.
+%The issue arises when gradients are backpropagated through deep neural networks to update weights, and loss contributions become vanishingly small except only when the weights have small magnitudes.
+%Normalizing the inputs to each mini-batch mean and standard deviation somewhat remedies the problem, and has been applied to (convolutional) neural networks since the 1990s.
+%? BN extends this normalization to all activations in hidden layers, thus adding two hyperparameters which modulate the mean and standard deviation of each layer to zero and unity, respectively.
+%The batch normalization hyperparameters are learned for each mini-batch and are updated in addition to weight parameters during the backward pass.
 % if confused refer to  https://kratzert.github.io/2016/02/12/understanding-the-gradient-flow-through-the-batch-normalization-layer.html4
 
-Without BN, activations in any given layer may span a large range and contributions from certain parts of the network may become dwarfed by others.
-After the normalization step, all pre-activations are on the same scale and thus gradient descent steps can more efficiently traverse the loss function space.
-Training proceeds more rapidly and converges toward a solution more quickly.
-Choice of mini-batch size also impacts the learning rate, as small batch size increases stochasticity in each gradient.
-Large batch size allows for better parallelization on the GPU and ensures smoother gradients.
-We note that smooth gradients across mini-batches can prevent the solution from hopping out of local basins, and negatively impact performance.
-Increasing the learning rate as batch size is increased can resolve this problem, at least in part, but limits the convergence ability of the network (until the rate is annealed).
-We find in practice that batch sizes between 128 and 512 work best at balancing noisy gradients and learning rate.
+We implement batch normalization (BN), a technique developed to fix a problem that caused deep networks to train extremely slowly \citep{batchnorm}.
+To briefly recap the issue: updates to the layer weights depends on the contribution of the backpropagated error, but when the number of layers is large (i.e., in a deep CNN), the contribution becomes vanishingly small.
+BN is simply the rescaling of each input to the nonlinear activation so that it has mean of zero and standard deviation of unity (i.e., subtract the mean and divide by the standard deviation).
+A new choice of hyperparameter is the batch size, or the number of training examples from which the mean and variance are calculated); we choose 256 based on tests of performance in ten training epochs.
 
-Dropout is a method of disabling a random subset of connections after linear layers for each mini-batch (Hinton et al. 2012).
-By removing random connections between fully-connected layers, dropout effectively treats each mini-batch as one in an ensemble of random training subsets .
-It is instructive to think of each mini-batch in the full training data as analogous to a decision tree in a random forest.
+%Without BN, activations in any given layer may span a large range and contributions from certain parts of the network may become dwarfed by others.
+%After the normalization step, all pre-activations are on the same scale and thus gradient descent steps can more efficiently traverse the loss function space.
+%Training proceeds more rapidly and converges toward a solution more quickly.
+%Choice of mini-batch size also impacts the learning rate, as small batch size increases stochasticity in each gradient.
+%Large batch size allows for better parallelization on the GPU and ensures smoother gradients.
+%We note that smooth gradients across mini-batches can prevent the solution from hopping out of local basins, and negatively impact performance.
+%Increasing the learning rate as batch size is increased can resolve this problem, at least in part, but limits the convergence ability of the network (until the rate is annealed).
+%We find in practice that batch sizes between 128 and 512 work best at balancing noisy gradients and learning rate.
+
+Dropout is a method of disabling a random subset of connections after linear layers in a network in order to improve the network's generalizability \citep{dropout}.
 The ensemble of learned gradients is less prone to overfit the training data set because the network is forced to discard random (and potentially valuable) information.
-The resulting network is better able to, for example, learn subtle differences in the data that would otherwise be ignored when more obvious features dominate the gradient descent process.
-Since our Resnet architecture is broadly separated into multiple groups of layers, we can apply lower dropout rate at earlier layers in order to ensure that those filters are learned more quickly.
-Using a differential dropout rate is sensible because filters learned in the first few layers of the network tend to be Gabor filters and edges in general, and there is little risk of overfitting when such low-level abstractions are always necessary for learning high-level features in the middle and final layers.
+The resulting network is better able to, e.g., learn subtle differences in the data that would otherwise be ignored when more obvious features dominate the gradient descent process.
+We apply dropout layers only to the final fully connected layers in our deep CNN, and avoid dropout in the batch-normalized layers \citep[as recommended by][]{batchnorm}.
+%By removing random connections between fully-connected layers, dropout effectively treats each mini-batch as one in an ensemble of random training subsets .
+%It is instructive to think of each mini-batch in the full training data as analogous to a decision tree in a random forest.
+%The ensemble of learned gradients is less prone to overfit the training data set because the network is forced to discard random (and potentially valuable) information.
+%The resulting network is better able to, for example, learn subtle differences in the data that would otherwise be ignored when more obvious features dominate the gradient descent process.
+%Since our Resnet architecture is broadly separated into multiple groups of layers, we can apply lower dropout rate at earlier layers in order to ensure that those filters are learned more quickly.
+%Using a differential dropout rate is sensible because filters learned in the first few layers of the network tend to be Gabor filters and edges in general, and there is little risk of overfitting when such low-level abstractions are always necessary for learning high-level features in the middle and final layers.
+%
+%During validation and testing, dropout is not used because all of the data is useful for predictive power.
+%We use dropout rates of 0.25 for the linear layer after the early group, and 0.50 at the later linear layer.
+%We find that dropout combined with BN -- although not recommended in the original paper -- work in tandem to boost training speeds and avoid overfitting.
 
-During validation and testing, dropout is not used because all of the data is useful for predictive power.
-We use dropout rates of 0.25 for the linear layer after the early group, and 0.50 at the later linear layer.
-We find that dropout combined with BN -- although not recommended in the original paper -- work in tandem to boost training speeds and avoid overfitting.
+\subsection{Data augmentation}
+Nearly all neural networks benefit from larger training samples because they help prevent overfitting.
+Beyond the local Universe, galaxies are seen at nearly random orientation; such invariance permits synthetic data to be generated from rotations and flips of the training images \citep[see, e.g.,][]{2014arXiv1409.1556S}.
+Each image is fed into the network along with four augmented versions, thus increasing the total training sample by a factor of five.
+%Additional small zooms of $< 5\%$ may also be applied to enlarge the training size.
+This technique is called data augmentation, and is particularly helpful for the network to learn uncommon truth values (e.g., in our case, very metal-poor or metal-rich galaxies).
+Each training-augmentation is fed-forward through the network and gradient contributions are computed together as part of the same batch.
+A similar process is applied to the network during predictions, which is called test-time augmentation (TTA), whereby synthetic images are generated according to the same rules applied to the training data set.
+The CNN predicts an ensemble average over the augmented images, which tends to further improve RMSE by a few percent.
+
+%\subsection{Cyclical learning rate annealing}\label{sec:learning rate}
+%The learning rate determines how large of a step each network weight takes in the direction of the backpropagated error.
+%A large learning rate thus forces the weights to make large updates, which generally prevents overfitting but also may cause the parameters to overshoot minima in the loss function landscape.
+%A small learning rate may allow the weights to get stuck in a local minima near their initial positions, or also might cause the network to learn very slowly.
+%The number of local minima increases exponentially with dimensionality (cite), so selecting a low learning rate does not ensure that the network will eventually make it to near the global minimum.
+%Therefore, it is often useful to anneal, or reduce, the learning rate from a high value in the beginning -- which allows the weights to find the right ballpark values -- to a low value -- which allows the weights to take finer steps near the global minimum -- over the course of multiple training epochs.
+%
+%In practice, annealing can be enforced manually, e.g., the learning rate might be reduced by a factor of 10 every time the loss function plateaus over a number of epochs.
+%Eventually even reduced learning rates do not permit additional improvement of the loss, and so the training period is concluded.
+%We instead use a method called cosine annealing, during which the learning rate is annealed continuously over one or more epochs for \textit{each} mini-batch until it eventually reaches zero.
+%
+%We employ stochastic gradient descent with restarts (SGDR), over progressively longer training cycles, and restart cosine annealing over each cycle (Leslie Smith 2015?).
+%For example, the first cycle comprises one epoch during which the learning rate is cosine annealed.
+%It then trains for another cycle with cosine annealing, which starts at the same learning rate but is annealed over twice the duration (two epochs).
+%These ``restarts'' have been shown to kick the weights configuration out of saddle points in the loss of some high-dimensional parameter space.
+%Training can then proceed past what appear to be local minima but are actually saddle points (where gradient descent generally performs poorly).
+%
+%
+%\subsection{Layer learning rates}
+%ADD MORE HERE
+%
+%Frozen training to get final activates in right ``ballpark.''
+%We then unfreeze all layers and train using different rates in different layer groups.
+
 
 
 
