@@ -89,15 +89,14 @@ Before the CNN can be asked to make predictions, it must be trained to learn the
 \begin{equation}
 \mathrm{RMSE} \equiv \sqrt{\langle |y_{\rm true} - y_{\rm pred}|^2\rangle},
 \end{equation}
-where $y_{\rm true}$ is the ``true'' and $y_{\rm pred}$ is the predicted value, and $y$ represents the target quantity. For this part of our analysis, we define the 50th percentile \cite{Tremonti2004} metallicity to be $Z_{\rm true}$.
+where $y_{\rm true}$ is the ``true'' and $y_{\rm pred}$ is the predicted value, and $y$ represents the target quantity. For this part of our analysis, we define $Z_{\rm true}$ to be the 50th percentile metallicity estimated by \cite{Tremonti2004}.
 
 We randomly split our training sample of $\sim 96,953$ images into 80\% (76,711) training and 20\% (19,192) validation data sets, respectively. The test data set of 20,466 images is isolated for now, and is not accessible to the CNN until all training is completed. Images and $Z_{\rm true}$ answers are given to the CNN in ``batches'' of 256 at a time, until the full training data set has been used for training. Each full round of training using all of the data is called an epoch, and we compute the loss using validation data set at the end of each epoch.
-
-We use gradient descent for each mini-batch to adjust weight parameters, and each weight's fractional contribution of loss is determined by the backpropagation algorithm \citep{LeCun1989}, during which finite partial derivatives are computed and propagated backwards through layers (i.e., using the chain rule for derivative). %The gradient is multiplied by the \textit{learning rate} (see Section~\ref{sec:learning rate}); batch-normalization is also applied in addition to a momentum term which ensures that the gradient is itself only changing slowly with each mini-batch. \editorial{what is momentum}
+We use gradient descent for each batch to adjust weight parameters, and each weight's fractional contribution of loss is determined by the backpropagation algorithm \citep{LeCun1989}, during which finite partial derivatives are computed and propagated backwards through layers (i.e., using the chain rule for derivative). 
 
 We use a 34-layer residual CNN architecture \citep{He2015}, initialized to weights pre-trained on the ImageNet data set, which consists of 1.7 million images belonging to 1000 categories of objects found on Earth \citep[e.g., cats, horses, cars, or books;][]{ImageNet}.
 The CNN is trained for a total of 10 epochs.
-For more details about the CNN architecture, hyperparameter selection, data augmentation, and the training process, see the Appendix.
+For more details about the CNN architecture, transfer learning, hyperparameter selection, data augmentation, and the training process, see the Appendix.
 In total, our training process requires 25-30 minutes on our GPU and uses under 2~GB of memory.
 %It takes two minutes for the CNN to compute $Z_{\rm pred}$ for our test set of 20,466 images, or approximately 6 milliseconds per image. For comparison, \cite{Huertas-Company2015} train their network for 10 days on a GPU using the Galaxy Zoo architecture.
 
@@ -132,7 +131,7 @@ However, unlike the RMSE, which quantifies the typical scatter distributed about
 		SDSS imaging with predicted and true metallicities from the test data set. Five examples are shown from each of the following categories: (a) lowest predicted metallicity, (b) lowest true metallicity, (c) highest predicted metallicity, (d) highest true metallicity, (e) most under-predicted metallicity, (f) most over-predicted metallcity, and (g) a set of randomly selected galaxies.}
 \end{figure*}
 
-In Figure~\ref{fig:examples}, we show examples of $128 \times 128$ pixel \sdssi\sdssr\sdssg{} SDSS images that are evaluated by the CNN. Rows (a) and (b) depict the galaxies with lowest predicted and lowest true metallicities, respectively. The CNN has associated blue, edge-on disk galaxies with low metallicities, and is generally accurate in its predictions. In rows (c) and (d), we show the galaxies with highest predicted and highest true metallicities, respectively. Here we find that red galaxies containing prominent nuclei are predicted to be high in metallicity, and that their predictions generally match $Z_{\rm true}$.
+In Figure~\ref{fig:examples}, we show examples of $128 \times 128$ pixel \sdssi\sdssr\sdssg{} SDSS images that are evaluated by the CNN. Rows (a) and (b) depict the galaxies with lowest predicted and lowest true metallicities, respectively. The CNN associates blue, edge-on disk galaxies with low metallicities, and is generally accurate in its predictions. In rows (c) and (d), we show the galaxies with highest predicted and highest true metallicities, respectively. Here we find that red galaxies containing prominent nuclei are predicted to be high in metallicity, and that their predictions generally match $Z_{\rm true}$.
 
 Galaxies predicted by our CNN to have high metallicities ($Z_{\rm pred} > 9.0$) tend to be characterized by high $Z_{\rm true}$, and the equivalent is true for low-metallicity galaxies. Inversely, galaxies with the highest (lowest) \textit{true} metallicities in the sample are also predicted to have high (low) metallicities. Note that inclined galaxies tend to be lower in metallicity whereas face-on galaxies appear to be higher in metallicity. \cite{Tremonti2004} explain this correlation by suggesting that the SDSS fiber aperture captures more column of a projected edge-on disk, allowing the metal-poor, gas-rich, and less-extincted outer regions to more easily be detected and depress the integrated $Z_{\rm true}$.
 
@@ -251,7 +250,7 @@ We re-run the CNN methodology to train and predict $M_{\star}$ using the 116,394
 
 We use Equation~\ref{eq:mzr} and $M_{\star,\rm pred}$ to predict metallicity, which we call $Z_{\rm MZR}$. In the right panel of Figure~\ref{fig:mass-metallicity}, we compare $Z_{\rm MZR}$ against $Z_{\rm true}$. The scatter in residuals $Z_{\rm MZR} - Z_{\rm true}$ is $0.12$~dex, which is significantly higher than the $0.085$~dex scatter reported in Section~\ref{sec:results}. 
 If solely the MZR were mediating the CNN's ability to estimate from 
-\sdssi\sdssr{} imaging, then we would expect the scatter for $Z_{\rm pred}$ to be greater than for $Z_{\rm MZR}$; we find that the opposite is true. This evidence suggests that the CNN has learned to determine metallicity in a more powerful way than by simply predicting $M_{\rm \star,pred}$ and then applying a polynomial conversion.
+\sdssi\sdssr\sdssg{} imaging, then we would expect the scatter for $Z_{\rm pred}$ to be greater than for $Z_{\rm MZR}$; instead we find that the opposite is true. This evidence suggests that the CNN has learned to determine metallicity in a more powerful way than by simply predicting $M_{\rm \star,pred}$ and then applying a polynomial conversion.
 
 
 \subsection{An Unexpectedly Strong CNN-predicted Mass-Metallicity Relation}
@@ -284,7 +283,7 @@ We have trained a deep convolutional neural network (CNN) to predict galaxy gas-
 Our conclusions are as follows:
 
 \begin{enumerate}
-	\item By training for a half-hour on a GPU, the CNN can predict metallicity well enough to achieve residuals characterized by RMSE $= 0.085$~dex (or outlier-insensitive NMAD $= 0.067$~dex). \editorial{These findings may be promising for future large spectroscopy-limited surveys such as LSST.}
+	\item By training for a half-hour on a GPU, the CNN can predict metallicity well enough to achieve residuals characterized by RMSE $= 0.085$~dex (or outlier-insensitive NMAD $= 0.067$~dex). These findings may be promising for future large spectroscopy-limited surveys such as LSST.
 
 	\item We find that the residual scatter decreases in an expected way as resolution is increased, suggesting that the CNN is leveraging the spatial information about a galaxy's light distribution in order to predict metallicity.
 
@@ -380,7 +379,7 @@ We refer to \cite{SGDR} for details about employing cyclical learning rates and 
 
 \subsection{Optimization Techniques and Preventing Overfitting} \label{sec:optimization}
 
-Losses are computed for small ``batches'' of training examples at a time (see, e.g., Appendix~\ref{sec:BN-Dropout}).
+Losses are computed for small ``batches'' of training examples at a time.
 Gradients that minimize each batch are expected to be noisier than gradients that are computed to optimize the entire training data set loss.
 This technique of \textit{stochastic gradient descent} helps prevent the CNN from overfitting training data, which is a possibility given the huge number of parameters in a deep CNN.
 We also use weight decay, another commonly used regularization technique which adds a decay term proportional to each layer weight during the update step of training \citeeg{Krogh1992}.
