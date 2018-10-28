@@ -201,7 +201,7 @@ Regardless of these limitations, our CNN is able to estimate metallicity with $\
 
 
 \section{The mass-metallicity relation} \label{sec:MZR}
-The MZR describes the tight correlation between galaxy stellar mass and nebular-phase metallicity. Scatter in this correlation is approximately $\sigma \approx 0.10$~dex in $Z_{\rm true}$ over the stellar mass range $8.5 < \log (\mstar / \msol) < 11.5$ \citep{Tremonti2004}, where $\sigma$ is the standard deviation of the metallicity and is equivalent to the RMSE for a normal distribution. The MZR can be characterized empirically using a polynomial fit:
+The MZR describes the tight correlation between galaxy stellar mass and nebular gas-phase metallicity. Scatter in this correlation is approximately $\sigma \approx 0.10$~dex in $Z_{\rm true}$ over the stellar mass range $8.5 < \log (\mstar / \msol) < 11.5$ \citep{Tremonti2004}, where $\sigma$ is the standard deviation of the metallicity and is equivalent to the RMSE for a normal distribution. The MZR at $z=0$ can be characterized empirically using a polynomial fit:
 \begin{equation}\label{eq:mzr}
 Z = -1.492 + 1.847 \log (\mstar / \msol) - 0.08026 \left [\log(\mstar / \msol)\right ]^2.
 \end{equation}
@@ -211,42 +211,36 @@ The physical interpretation of the MZR is that a galaxy's stellar mass strongly 
 The FMR connects the instantaneous ($\sim 10$ Myr) SFR with the gas-phase metallicity \citep[$\sim 1$~Gyr timescales; see, e.g.,][]{2011ApJ...734...48L} and \mstar{} (\ie, the $\sim 13$~Gyr integrated SFR). Our CNN is better suited for predicting \mstar{} rather than SFR, using the \sdssg\sdssr\sdssi bands, which can only weakly probe the blue light from young, massive stars. Therefore, we expect the scatter in CNN predictions to be limited by the MZR (with scatter $\sigma \sim 0.10$~dex) rather than the FMR ($\sigma \sim 0.05$~dex). It is possible that galaxy color and morphology, in tandem with CNN-predicted stellar mass, can be used to roughly estimate the SFR, but in this paper we will focus on only the MZR.
 
 
-\subsection{Predicting Stellar Mass}
+\subsection{Predicting stellar mass}
 
 \begin{figure*}
 	\includegraphics[width=\columnwidth]{05-a-prediction_mass.pdf}
 	\includegraphics[width=\columnwidth]{05-b-prediction_mzr.pdf}
 	\caption{\label{fig:mass-metallicity}
-		In the left panel, we show the CNN predicted galaxy stellar mass against true stellar mass. Colors and marker or line styles are the same as in Figure~\ref{fig:predicting-metallicity}. In the right panel, we compare the predicted stellar mass converted to metallicity, assuming the \citet{Tremonti2004} MZR, against the true metallicity.
+		In the left panel, we plot the CNN predicted galaxy stellar mass against true stellar mass. Colors and marker or line styles are the same as in Figure~\ref{fig:predicting-metallicity}. In the right panel, we compare the predicted stellar mass converted to metallicity, assuming the \citet{Tremonti2004} MZR, against the true metallicity.
 		}
 \end{figure*}
 
-Since galaxy stellar mass is known to strongly correlate with metallicity, and is easier to predict (than, \eg, SFR) from \sdssg\sdssr\sdssi\ imaging, we consider the possibility that the CNN is simply predict stellar mass ($M_{\star,\rm pred}$) accurately and then learning the simple polynomial transformation in order to estimate metallicity. We can simulate this method by training the CNN on $M_{\star, \rm true}$ and then converting the stellar mass predictions to metallicities using Equation~\ref{eq:mzr}.
+Since galaxy stellar mass is known to strongly correlate with metallicity, and is easier to predict (than, \eg, SFR) from \sdssg\sdssr\sdssi\ imaging, we consider the possibility that the CNN is simply predict stellar mass ($M_{\star,\rm pred}$) accurately and then learning the simple polynomial transformation in order to estimate metallicity. We can simulate this scenario by training the CNN on $M_{\star, \rm true}$ and then converting the stellar mass predictions to metallicities using Equation~\ref{eq:mzr}.
 
-We re-run the CNN methodology to train and predict $M_{\star}$ using the 116,394 available images (out of the 142,145/142,186 original objects that have stellar mass measurements). These results are shown in the left panel of Figure~\ref{fig:mass-metallicity}. From the same subsample as before (minus three which do not have \mstar), we verify that $M_{\rm \star, true}$ median agrees with the median of $M_{\rm \star, true}$ for values between $9.0 \lesssim \log \mstar /\msol \lesssim 10.5$. The RMSE scatter in the \mstar{} residuals is $\sim 0.22$~dex, and the NMAD is $\sim 0.20$~dex. The slope of the empirical MZR at $\log (\mstar / \msol) \sim 10$ is (0.4~dex in $Z$)/(1.0~dex in \mstar), implying that the CNN might be able to leverage the MZR and predict metallicity to $\sim 0.08$~dex (plus any intrinsic scatter in the MZR, in quadrature).
-%Given our CNN's ability to accurately predict $M_{\star}$, coupled with the inability of SDSS images to inform it about nebular regions or spectral lines, is it possible that the CNN's unexpectedly strong performance in predicting metallicity comes through the MZR?
+We re-run the CNN methodology to train and predict $M_{\star}$ using the 116,394 available images (out of the 142,145/142,186 original objects that have stellar mass measurements). These results are shown in the left panel of Figure~\ref{fig:mass-metallicity}. From the same subsample as before (minus three objects that do not have \mstar estimates), we verify that $M_{\rm \star, true}$ median agrees with the median of $M_{\rm \star, true}$ for values between $9.0 \lesssim \log \mstar /\msol \lesssim 10.5$. The RMSE scatter in the \mstar{} residuals is $\sim 0.22$~dex, and the NMAD is $\sim 0.20$~dex. The slope of the empirical MZR at $\log (\mstar / \msol) \sim 10$ is (0.4~dex in $Z$)/(1.0~dex in \mstar), implying that the CNN might be able to leverage the MZR and predict metallicity to $\sim 0.08$~dex (plus any intrinsic scatter in the MZR, in quadrature).
 
-%One option is that the CNN learned to predict $M_{\star}$ followed by the polynomial MZR transformation (Equation~\ref{eq:mzr}).
-%We can simulate predicting metallicity this way by outputting $M_{\rm \star, pred}$, and then passing those predictions through the empirical MZR (which we will call $Z_{\rm MZR}$).
-
-We use Equation~\ref{eq:mzr} and $M_{\star,\rm pred}$ to predict metallicity, which we call $Z_{\rm MZR}$. In the right panel of Figure~\ref{fig:mass-metallicity}, we compare $Z_{\rm MZR}$ against $Z_{\rm true}$. The scatter in residuals $Z_{\rm MZR} - Z_{\rm true}$ is $0.12$~dex, which is significantly higher than the $0.085$~dex scatter reported in Section~\ref{sec:results}.
-If solely the MZR were mediating the CNN's ability to estimate from
-\sdssg\sdssr\sdssi\ imaging, then we would expect the scatter for $Z_{\rm pred}$ to be greater than for $Z_{\rm MZR}$; instead we find that the opposite is true. This evidence suggests that the CNN has learned to determine metallicity in a more powerful way than by simply predicting $M_{\rm \star,pred}$ and then applying a polynomial conversion.
+We use Equation~\ref{eq:mzr} and $M_{\star,\rm pred}$ to predict metallicity, which we call $Z_{\rm MZR}$. In the right panel of Figure~\ref{fig:mass-metallicity}, we compare $Z_{\rm MZR}$ against $Z_{\rm true}$. The scatter in residuals $Z_{\rm MZR} - Z_{\rm true}$ is $0.12$~dex, which is significantly higher than the $0.085$~dex scatter reported in Section~\ref{sec:results}. If the MZR alone were mediating the CNN's ability to estimate from
+\sdssg\sdssr\sdssi\ imaging, then we would expect the scatter for $Z_{\rm pred}$ to be greater than for $Z_{\rm MZR}$; instead we find that the opposite is true. This evidence suggests that the CNN has learned to determine metallicity in a more powerful way than by simply predicting $M_{\rm \star,pred}$ and then effectively applying a polynomial conversion.
 
 
-\subsection{An Unexpectedly Strong CNN-predicted Mass-Metallicity Relation}
+\subsection{An unexpectedly strong CNN-predicted mass-metallicity relation}
 \begin{figure}
 	\includegraphics[width=\columnwidth]{06-mzr.pdf}
 	\caption{\label{fig:mzr}
-		In the main panel, the predicted MZR comparing true \mstar{} against CNN-predicted $Z_{\rm pred}$ is shown in grayscale. The running median (solid red) and scatter (dashed blue and orange) are shown in 0.2~dex mass bins. For comparison, we also show the \citet{Tremonti2004} observed median and scatter (solid and dashed black lines, respectively), which are binned by 0.1~dex in mass. In the top panel, we show the scatter in the predicted and empirical MZR. The standard deviation of the scatter for the empirical MZR is shown as a dashed black line, while the blue and orange circles respectively show RMSE and NMAD for the predicted MZR. Marker sizes are proportional to the number of galaxies in each stellar mass bin for the test data set. Global scatter in the CNN-predicted MZR appears to be comparable to, or even lower than, scatter in the empirical MZR.}
+		In the main panel, the predicted MZR comparing true \mstar\ against CNN-predicted $Z_{\rm pred}$ is shown in grayscale. The running median (solid red) and scatter (dashed blue and orange) are shown in 0.2~dex mass bins. For comparison, we also show the \citet{Tremonti2004} observed median and scatter (solid and dashed black lines, respectively), which are binned by 0.1~dex in mass. In the upper panel, we show the scatter in the predicted and empirical MZR. The standard deviation of the scatter for the empirical MZR is shown as a dashed black line, while the red and blue circles respectively show RMSE and NMAD for the predicted MZR. Marker sizes are proportional to the number of galaxies in each stellar mass bin for the test data set. Global scatter in the CNN-predicted MZR appears to be comparable to, or even lower than, scatter in the empirical MZR.}
 \end{figure}
 
-The RMSE $= 0.085$~dex difference between the true and CNN-predicted metallicities can be interpreted in one of two ways: (1) the CNN is inaccurate, and $Z_{\rm pred}$ deviates randomly from $Z_{\rm true}$, or (2) the CNN is labeling $Z_{\rm pred}$ according to some other hidden variable, and $\Delta Z$ residuals represent non-random shifts in predictions based on this variable. If the first scenario is true, then we would expect the random residuals to increase the scatter of other known correlations such as the MZR when predicted by the CNN. If the second is true, then we would expect the scatter of such correlations to remain unchanged or shrink. We can therefore contrast the MZR constructed from $Z_{\rm pred}$ and from $Z_{\rm true}$ in order to test these interpretations.
+The RMSE $= 0.085$~dex difference between the true and CNN-predicted metallicities can be interpreted in one of two ways: (1) the CNN is inaccurate, and $Z_{\rm pred}$ deviates randomly from $Z_{\rm true}$, or (2) the CNN is labeling $Z_{\rm pred}$ according to some other hidden variable, and $\Delta Z$ residuals represent non-random shifts in predictions based on this variable. If the first scenario were true, we would expect the random residuals to increase the scatter of other known correlations such as the MZR when predicted by the CNN. If the second were true, we would expect the scatter of such correlations to remain unchanged or shrink. We can therefore contrast the MZR constructed from $Z_{\rm pred}$ and from $Z_{\rm true}$ in order to test these interpretations.
 
-In the main panel of Figure~\ref{fig:mzr}, we show true stellar mass against CNN-predicted metallicity. For comparison, we also overlay the \cite{Tremonti2004} MZR median relation and its $\pm 1~\sigma$ scatter (which has characteristic $\sim 0.10$~dex). Their empirical median relation (solid black) matches our predicted MZR median (solid red), and the lines marking observed scatter (dashed black) match $Z_{\rm pred}$ scatter as well (dashed blue and orange). Over the range $9.5 \leq \log (M_{\star, \rm true}/\msol) \leq 10.5$, the RMSE scatter in $Z_{\rm pred}$ appears to be even tighter than the observed $\pm 1\,\sigma$ (dashed black). The same is true for the NMAD, which is even lower over the same interval.
+In the main panel of Figure~\ref{fig:mzr}, we plot CNN-predicted metallicity versus true stellar mass. For comparison, we also overlay the \cite{Tremonti2004} MZR median relation and its $\pm 1~\sigma$ scatter (which is $\sim 0.10$~dex). Their empirical median relation (solid black) matches our predicted MZR median (solid red), and the lines marking observed scatter (dashed black) match $Z_{\rm pred}$ scatter as well (dashed blue and orange). Over the range $9.5 \leq \log (M_{\star, \rm true}/\msol) \leq 10.5$, the RMSE scatter in $Z_{\rm pred}$ appears to be even tighter than the observed $\pm 1\,\sigma$ (dashed black). The same is true for the NMAD, which is even lower over the same interval.
 
-In the upper panel of Figure~\ref{fig:mzr}, we present the scatter in both predicted and \cite{Tremonti2004} MZR binned by mass. We confirm that the CNN predicts a MZR that is at most equal in scatter than one constructed using the true metallicity. The stellar mass bins for which our CNN found tighter scatter than the empirical MZR are the same bins that happen to contain the most number of examples ($9.5 \leq \log (M_{\star, \rm true}/\msol) \leq 10.5$); thus, the strong performance of our network at those masses may be due to a wealth of training examples.
-If our data set were augmented to include additional low- and high-$M_{\rm \star,true}$ galaxies, then the scatter in prediction MZR could be even lower.
+In the upper panel of Figure~\ref{fig:mzr}, we present the scatter in both predicted and \cite{Tremonti2004} MZR binned by mass. We confirm that the CNN predicts a MZR that is at most equal in scatter than one constructed using the true metallicity. The stellar mass bins for which our CNN found tighter scatter than the empirical MZR are the same bins that happen to contain the greatest number of examples ($9.5 \leq \log (M_{\star, \rm true}/\msol) \leq 10.5$); thus, the strong performance of our network at those masses may be due to a wealth of training examples. If our data set were augmented to include additional low- and high-$M_{\rm \star,true}$ galaxies, then the scatter in the predicted MZR could be even lower overall.
 
 The fact that a CNN trained on only \sdssg\sdssr\sdssi\ imaging is able to predict metallicity accurately enough to reproduce the MZR in terms of median and scatter is not trivial. The error budget is very small: $\sigma = 0.10$~dex affords only, \eg, 0.05~dex of scatter when SFR is a controlled parameter plus a 0.03~dex systematic scatter in $Z_{\rm true}$ measurements, leaving only $\sim 0.08$~dex remaining for CNN systematics, assuming that these errors are not correlated and are added in quadrature. This remaining error budget may barely be able to accommodate our result of RMSE($\Delta Z$) $= 0.085$.
 Interpreting the MZR scatter as the combination of intrinsic FMR scatter, $Z_{\rm true}$ systematics, and $\Delta Z$ systematics cannot be correct since it assumes that the CNN is recovering the FMR perfectly.
@@ -257,7 +251,7 @@ This is immediately exceeded, as we have found RMSE $\approx 0.10$~dex for the p
 Consider the case in which all $Z_{\rm true}$ values are shifted randomly by a Gaussian noise distribution with $\sigma = 0.085$~dex.
 These shifted values should not be able to reconstruct a correlation without introducing additional scatter unless the shifts were not arbitrary to begin with.
 
-We thus find more evidence that the CNN has learned something from the SDSS \sdssg\sdssr\sdssi\ imaging that is different from, but at least as powerful as, the MZR. One way that this is possible is if the CNN can measure some version of metallicity that is more fundamentally linked to the stellar mass, rather than $Z_{\rm pred}$ as derived from oxygen spectral lines. Another possibility is that the MZR is a projection of a correlation between stellar mass, metallicity, and a third parameter, perhaps one that is morphological in nature. If this is the case, then the \cite{Tremonti2004} MZR represents a relationship that is randomly distributed in the yet unknown third parameter, while our CNN would be able to stratify the MZR according to this parameter (much like how the FMR does so with the SFR). We are unfortunately not able to identify any hidden parameter using the current CNN methodology, but we plan to explore this topic in a future work.
+We thus find more evidence that the CNN has learned something from the SDSS \sdssg\sdssr\sdssi\ imaging that is different from, but at least as powerful as, the MZR. One possible explination is that the CNN is measuring some version of metallicity that is more fundamentally linked to the stellar mass, rather than $Z_{\rm pred}$ as derived from oxygen spectral lines. Another possibility is that the MZR is a projection of a correlation between stellar mass, metallicity, and a third parameter, perhaps one that is morphological in nature. If this is the case, then the \cite{Tremonti2004} MZR represents a relationship that is randomly distributed in the yet unknown third parameter, while our CNN would be able to stratify the MZR according to this parameter (much as the FMR does with the SFR). We are unfortunately not able to identify any hidden parameter using the current CNN methodology, but we plan to explore this topic in a future work.
 
 \section{Summary}\label{sec:summary}
 We have trained a deep convolutional neural network (CNN) to predict galaxy gas-phase metallicity using only $128 \times 128$-pixel, three-band (\sdssg\sdssr\sdssi), JPG images obtained from SDSS. We characterize CNN performance by measuring scatter in the residuals between predicted ($Z_{\rm pred}$) and true ($Z_{\rm true}$) metallicities.
@@ -283,34 +277,34 @@ Another is to train on five-band imaging and see if we can beat the FMR.
 \section*{Acknowledgements}
 
 SB is supported by NASA Astrophysics Data Analysis grant number NNX14AF73G and NSF Astronomy and Astrophysics Research Program award number 1615657.
-The authors thank Eric Gawiser and Andrew Baker for helpful comments and discussions, and also thank David Shih and Matthew Buckley for use of their GPU cluster at Rutgers University High Energy Experimental Physics department. %, and Kartheik Iyer for providing SED fits as benchmark as well as for valuable discussion.
-JFW thanks the Jeremy Howard, Rachel Thomas, and the development team for creating the \texttt{fastai} online courses and deep learning library.\footnote{\url{https://github.com/fastai/fastai}}
+The authors thank Eric Gawiser and Andrew Baker for helpful comments and discussions, and also thank David Shih and Matthew Buckley for the use of their GPU cluster at Rutgers University High Energy Experimental Physics department. %, and Kartheik Iyer for providing SED fits as benchmark as well as for valuable discussion.
+JFW thanks Jeremy Howard, Rachel Thomas, and the development team for creating the \texttt{fastai} on-line courses and deep learning library.\footnote{\url{https://github.com/fastai/fastai}}
 JFW also thanks Florian Peter for valuable assistance with using the \texttt{fastai} library.
-This research made use of the {\tt IPython} package \citep{Perez2007} and {\tt matplotlib}, a Python library for publication quality graphics \citep{Hunter2007}. %Funding for the SDSS and SDSS-II has been provided by the Alfred P. Sloan Foundation, the Participating Institutions, the National Science Foundation, the U.S. Department of Energy, the National Aeronautics and Space Administration, the Japanese Monbukagakusho, the Max Planck Society, and the Higher Education Funding Council for England. The SDSS Web Site is \url{http://www.sdss.org/}.
+This research made use of the {\tt IPython} package \citep{Perez2007} and {\tt matplotlib}, a Python library for publication quality graphics \citep{Hunter2007}.
 
 Funding for the Sloan Digital Sky Survey IV has been provided by the Alfred P. Sloan Foundation, the U.S. Department of Energy Office of Science, and the Participating Institutions. SDSS-IV acknowledges
 support and resources from the Center for High-Performance Computing at
-the University of Utah. The SDSS web site is www.sdss.org.
+the University of Utah. The SDSS web site is \url{www.sdss.org}.
 
-SDSS-IV is managed by the Astrophysical Research Consortium for the 
-Participating Institutions of the SDSS Collaboration including the 
-Brazilian Participation Group, the Carnegie Institution for Science, 
-Carnegie Mellon University, the Chilean Participation Group, the French Participation Group, Harvard-Smithsonian Center for Astrophysics, 
-Instituto de Astrof\'isica de Canarias, The Johns Hopkins University, 
-Kavli Institute for the Physics and Mathematics of the Universe (IPMU) / 
-University of Tokyo, the Korean Participation Group, Lawrence Berkeley National Laboratory, 
-Leibniz Institut f\"ur Astrophysik Potsdam (AIP),  
-Max-Planck-Institut f\"ur Astronomie (MPIA Heidelberg), 
-Max-Planck-Institut f\"ur Astrophysik (MPA Garching), 
-Max-Planck-Institut f\"ur Extraterrestrische Physik (MPE), 
-National Astronomical Observatories of China, New Mexico State University, 
-New York University, University of Notre Dame, 
-Observat\'ario Nacional / MCTI, The Ohio State University, 
-Pennsylvania State University, Shanghai Astronomical Observatory, 
+SDSS-IV is managed by the Astrophysical Research Consortium for the
+Participating Institutions of the SDSS Collaboration including the
+Brazilian Participation Group, the Carnegie Institution for Science,
+Carnegie Mellon University, the Chilean Participation Group, the French Participation Group, Harvard-Smithsonian Center for Astrophysics,
+Instituto de Astrof\'isica de Canarias, The Johns Hopkins University,
+Kavli Institute for the Physics and Mathematics of the Universe (IPMU) /
+University of Tokyo, the Korean Participation Group, Lawrence Berkeley National Laboratory,
+Leibniz Institut f\"ur Astrophysik Potsdam (AIP),
+Max-Planck-Institut f\"ur Astronomie (MPIA Heidelberg),
+Max-Planck-Institut f\"ur Astrophysik (MPA Garching),
+Max-Planck-Institut f\"ur Extraterrestrische Physik (MPE),
+National Astronomical Observatories of China, New Mexico State University,
+New York University, University of Notre Dame,
+Observat\'ario Nacional / MCTI, The Ohio State University,
+Pennsylvania State University, Shanghai Astronomical Observatory,
 United Kingdom Participation Group,
-Universidad Nacional Aut\'onoma de M\'exico, University of Arizona, 
-University of Colorado Boulder, University of Oxford, University of Portsmouth, 
-University of Utah, University of Virginia, University of Washington, University of Wisconsin, 
+Universidad Nacional Aut\'onoma de M\'exico, University of Arizona,
+University of Colorado Boulder, University of Oxford, University of Portsmouth,
+University of Utah, University of Virginia, University of Washington, University of Wisconsin,
 Vanderbilt University, and Yale University.
 
 
@@ -325,7 +319,7 @@ Vanderbilt University, and Yale University.
 %
 \section{Convolution neural network details}
 
-\subsection{Residual Neural Network Architecture}
+\subsection{Residual neural network architecture}
 CNNs are divided into ``layers'' that compute the convolutions of filters, or kernels, with each of the inputs.
 A Rectified Linear Unit (ReLU) activation function is applied to the convolved output \citep[ReLUs have been shown to propagate information about the relative importances of different features, and are effective for training deep neural networks;][]{Nair2010}.
 In a residual CNN, multiple convolutional layers containing small (e.g., $3\times 3$) filters are arranged sequentially, and a final ``shortcut connection'' adds the first layer, unaltered, to the final output \citep[before the final ReLU activation; see, e.g., Figure~2 of][]{He2015}.
@@ -334,82 +328,36 @@ Such combinations of convolutions, activations, and shortcuts are called residua
 We use a 34-layer residual convolutional neural network with the architecture described by \cite{He2015}, and implemented using \texttt{PyTorch} \citep[version 0.3.1;][]{pytorch} provided by the \texttt{fastai} framework \citep[version 0.7;][]{fastai}.
 A full description of the architecture's layers can be found in the online \texttt{PyTorch} documentation,\footnote{\url{https://pytorch.org/docs/stable/torchvision/models.html}} but we also provide a brief overview below.
 
-The resnet can be separated into three ``layer groups'' that roughly correspond to the levels of abstraction able to be learned by the network.
-Once an image is fed into the network, e.g., a three-channel $128\times 128$ SDSS image, it is effectively converted into activation maps that depend on how well the filters match the input image.
-These maps are further convolved with the next layer of filters, and this process continues until the last layer group is reached.
-The activation maps are periodically downsampled, max pooled, or average pooled, which effectively halve the map sizes in each spatial dimension \citep[for more about pooling layers in CNNs, see][]{Scherer2010}.
-The first two layer groups comprise multiple residual building blocks, and the final layer group consists of two fully connected linear layers, with a ReLU activation after the first and no activation after the second.
-The last fully connected layer does not have an activation function because we are working on a regression problem, and so the weights trained in that layer should be tuned to predict metallicity in the desired range.
+The resnet can be separated into three ``layer groups'' that roughly correspond to the levels of abstraction able to be learned by the network. Once an image is fed into the network, \eg, a three-channel $128\times 128$ SDSS image, it is effectively converted into activation maps that depend on how well the filters match the input image. These maps are further convolved with the next layer of filters, and this process continues until the last layer group is reached. The activation maps are periodically downsampled, max pooled, or average pooled, which effectively halve the map sizes in each spatial dimension \citep[for more about pooling layers in CNNs, see][]{Scherer2010}. The first two layer groups comprise multiple residual building blocks, and the final layer group consists of two fully connected linear layers, with a ReLU activation after the first and no activation after the second. The last fully connected layer does not have an activation function because we are working on a regression problem, and so the weights trained in that layer should be tuned to predict metallicity in the desired range.
 
+\subsection{Adaptive learning rates}
+Neural network performance tends to depend dramatically on choice of hyperparameters. After an image is fed forward and the residual (= prediction $-$ true) value is computed, relative contributions of error are propagated backward through the network, starting from the final layer and ending at the first layer. Using gradient descent of the loss (in our case, the root mean squared error), the network layers' weights are adjusted according to their error contributions multiplied by the \textit{learning rate}. The process of computing errors from known images and metallicities and updating weights is called \textit{training}, and when all of the training data set has been used to adjust network weights, a training \textit{epoch} is completed.
 
+The learning rate can be thought of as the step size during each weight update. A high learning rate allows the network to improve quickly, but at some point the large step size may become too coarse for additional optimization; conversely, a low learning rate might allow the network to traverse every bump and wiggle in the error landscape, but might also take a very long time to reach convergence (or get stuck indefinitely in a local minimum). We first select a learning rate by using the method described by \cite{CLR}. Over a number of epochs, the learning rate is reduced (or \textit{annealed}) as the network needs to make more fine-tuned updates in order to achieve better accuracy. We use a method called cosine annealing, during which the learning rate is annealed with the cosine function continuously over individual (or batches of) training examples.
+It has been shown that if the learning rate is annealed and then restarted after one or more epochs, the network is less likely to get caught in local minima and overall accuracy is improved. We refer to \cite{SGDR} for details about employing cyclical learning rates and gradient descent with restarts, which are implemented in our CNN.
 
-\subsection{Adaptive Learning Rates}
+\subsection{Optimization techniques and preventing overfitting} \label{sec:optimization}
 
-Neural network performance tends to depend dramatically on choice of hyperparameters.
-After an image is fed forward and the residual (= prediction $-$ true) value is computed, relative contributions of error are propagated backward through the network, starting from the final layer and ending at the first layer.
-Using gradient descent of the loss (in our case, the root mean squared error), the network layers' weights are adjusted according to their error contributions multiplied by the \textit{learning rate}.
-The process of computing errors from known images and metallicities and updating weights is called \textit{training}, and when all of the training data set has been used to adjust network weights, a training \textit{epoch} is completed.
+Losses are computed for small ``batches'' of training examples at a time. Gradients that minimize each batch are expected to be noisier than gradients that are computed to optimize the entire training data set loss. This technique of \textit{stochastic gradient descent} helps prevent the CNN from overfitting training data, which is a possibility given the huge number of parameters in a deep CNN. We also use weight decay, another commonly used regularization technique, which adds a decay term proportional to each layer weight during the update step of training \citeeg{Krogh1992}.
 
-The learning rate can be thought of as the step size during each weight update.
-A high learning rate allows the network to improve quickly, but at some point the large step size may become too coarse for additional optimization; conversely, a low learning rate might allow the network to traverse every bump and wiggle in the error landscape, but might also take a very long time to reach convergence (or get stuck indefinitely in a local minimum).
-We first select a learning rate by using the method described by \cite{CLR}.
-Over a number of epochs, the learning rate is reduced (or \textit{annealed}) as the network needs to make more fine-tuned updates in order to achieve better accuracy.
-We use a method called cosine annealing, during which the learning rate is annealed with the cosine function continuously over individual (or batches of) training examples.
-It has been shown that if the learning rate is annealed and then restarted after one or more epochs, the network is less likely to get caught in local minima and overall accuracy is improved.
-We refer to \cite{SGDR} for details about employing cyclical learning rates and gradient descent with restarts, which are implemented in our CNN.
-
-\subsection{Optimization Techniques and Preventing Overfitting} \label{sec:optimization}
-
-Losses are computed for small ``batches'' of training examples at a time.
-Gradients that minimize each batch are expected to be noisier than gradients that are computed to optimize the entire training data set loss.
-This technique of \textit{stochastic gradient descent} helps prevent the CNN from overfitting training data, which is a possibility given the huge number of parameters in a deep CNN.
-We also use weight decay, another commonly used regularization technique which adds a decay term proportional to each layer weight during the update step of training \citeeg{Krogh1992}.
-
-As the learning rate is annealed with increasing number of batches, the weight updates are also expected to diminish.
+As the learning rate is annealed with increasing numbers of batches, the weight updates are also expected to diminish.
 The Adam optimizer adaptively smooths the gradient descent in a way that depends on previous gradients \citep{Kingma2014}.
 Adam is analogous to rolling downhill with gravitational potential, momentum, and friction terms (whereas gradient descent would be analogous to movement dependent only on the potential at its given time step).
 For caveats about combining weight decay and Adam, see \cite{Loshchilov2017}, whose updated algorithm is implemented in \texttt{fastai}.
 
+We implement batch normalization (BN), a technique developed to fix a problem that previously caused deep networks to train extremely slowly \citep{batchnorm}. To briefly recap the issue: updates to the layer weights depend on the contribution of the backpropagated error, but when the number of layers is large (\ie, in a deep CNN), the contribution becomes vanishingly small. BN is simply the rescaling of each input to the nonlinear activation so that it has mean of zero and standard deviation of unity (\ie, subtract the mean and divide by the standard deviation). A new choice of hyperparameter is the batch size, or the number of training examples from which the mean and variance are calculated); we choose 256 based on tests of performance in ten training epochs.
 
-% if confused refer to  https://kratzert.github.io/2016/02/12/understanding-the-gradient-flow-through-the-batch-normalization-layer.html4
+Dropout is a method of disabling a random subset of connections after linear layers in a network in order to improve the network's generalizability \citep{dropout}. The ensemble of learned gradients is less prone to overfit the training data set because the network is forced to discard random (and potentially valuable) information. The resulting network is better able to, \eg, learn subtle differences in the data that would otherwise be ignored when more obvious features dominate the gradient descent process. We apply dropout layers only to the final fully connected layers in our deep CNN, and avoid dropout in the batch-normalized layers \citep[as recommended by][]{batchnorm}. We use dropout rates of 0.25 for the linear layer after the early group, and 0.50 at the later linear layer, both of which are \texttt{fastai} defaults.
 
-We implement batch normalization (BN), a technique developed to fix a problem that caused deep networks to train extremely slowly \citep{batchnorm}.
-To briefly recap the issue: updates to the layer weights depends on the contribution of the backpropagated error, but when the number of layers is large (i.e., in a deep CNN), the contribution becomes vanishingly small.
-BN is simply the rescaling of each input to the nonlinear activation so that it has mean of zero and standard deviation of unity (i.e., subtract the mean and divide by the standard deviation).
-A new choice of hyperparameter is the batch size, or the number of training examples from which the mean and variance are calculated); we choose 256 based on tests of performance in ten training epochs.
+\subsection{Training the network}
+We initialize the network using weights that have been pretrained on the 1.7~million example ImageNet data set \citep[which contains 1000 classes of objects;][]{ImageNet}. The network should more quickly optimize toward the global minimum loss through transfer of low-level features already learned in earlier layers of the network \citep[known as transfer learning; see, \eg,][]{Pan2010}.
 
-Dropout is a method of disabling a random subset of connections after linear layers in a network in order to improve the network's generalizability \citep{dropout}.
-The ensemble of learned gradients is less prone to overfit the training data set because the network is forced to discard random (and potentially valuable) information.
-The resulting network is better able to, e.g., learn subtle differences in the data that would otherwise be ignored when more obvious features dominate the gradient descent process.
-We apply dropout layers only to the final fully connected layers in our deep CNN, and avoid dropout in the batch-normalized layers \citep[as recommended by][]{batchnorm}.
-We use dropout rates of 0.25 for the linear layer after the early group, and 0.50 at the later linear layer, both of which are \texttt{fastai} defaults.
-
-
-
-\subsection{Training the Network}
-We initialize the network using weights that have been pretrained on the 1.7~million example ImageNet data set \citep[which contains 1000 classes of objects;][]{ImageNet}.
-The network should more quickly optimize toward the global minimum loss through transfer of low-level features already learned in earlier layers of the network \citep[known as transfer learning; see, e.g.,][]{Pan2010}.
-
-We train only the final layer group for the first two epochs, which can be accomplished by not updating weights in the first two layer groups.
-The learning rate is initially set to 0.1 and then annealed according to a cosine schedule over an epoch (and then restarted to 0.1 at the beginning of the following epoch).
-We then allow the updating of weights in all layer groups while setting the learning rates to 0.001, 0.01, and 0.01 for the first, second, and last layer groups, respectively.
-This allows the final group of fully connected layers to respond strongly to different types of training examples (e.g., galaxies that appear very different in \sdssi\sdssr\sdssg{} imaging) while the earlier layers are trained very slowly in order to preserve their more general features.
-Using these layered learning rates, we train the full network using a cosine annealing schedule that spans one, one, two, and then four epochs (where the different learning rates are annealed according to the same amount).
-Using this combination of learning rate schedules, we find that our network quickly achieves low training losses (RMSE $\sim 0.085$ on validation data sets).
-Altogether, only ten epochs of training are needed (which takes under 30 minutes on a GPU).
-We find that further training does yield some gains, but this improvement plateaus around RMSE $\sim 0.083$ and takes many more hours of training.
-
+We train only the final layer group for the first two epochs, which can be accomplished by not updating weights in the first two layer groups. The learning rate is initially set to 0.1 and then annealed according to a cosine schedule over an epoch (and then restarted to 0.1 at the beginning of the following epoch). We then allow the updating of weights in all layer groups while setting the learning rates to 0.001, 0.01, and 0.01 for the first, second, and last layer groups, respectively. This approach allows the final group of fully connected layers to respond strongly to different types of training examples (\eg, galaxies that appear very different in \sdssg\sdssr\sdssi\ imaging) while the earlier layers are trained very slowly in order to preserve their more general features. Using these layered learning rates, we train the full network using a cosine annealing schedule that spans one, one, two, and then four epochs (where the different learning rates are annealed by the same amount). Using this combination of learning rate schedules, we find that our network quickly achieves low training losses (RMSE $\sim 0.085$ on validation data sets). Altogether, only ten epochs of training are needed, which takes under 30 minutes on a GPU. We find that further training does yield some gains, but this improvement plateaus around RMSE $\sim 0.083$ and takes many more hours.
 
 \subsection{Data augmentation}\label{sec:data aug}
-Nearly all neural networks benefit from larger training samples because they help prevent overfitting.
-Beyond the local Universe, galaxies are seen at nearly random orientation; such invariance permits synthetic data to be generated from rotations and flips of the training images \citep[see, e.g.,][]{2014arXiv1409.1556S}.
-Each image is fed into the network along with four augmented versions, thus increasing the total training sample by a factor of five.
-%Additional small zooms of $< 5\%$ may also be applied to enlarge the training size.
-This technique is called data augmentation, and is particularly helpful for the network to learn uncommon truth values (e.g., in our case, very metal-poor or metal-rich galaxies).
-Each training-augmentation is fed-forward through the network and gradient contributions are computed together as part of the same batch.
-A similar process is applied to the network during predictions, which is called test-time augmentation (TTA), whereby synthetic images are generated according to the same rules applied to the training data set.
-The CNN predicts an ensemble average over the augmented images, which tends to further improve RMSE by a few percent.
+Nearly all neural networks benefit from larger training samples because they help prevent overfitting. Beyond the local Universe, galaxies are seen at nearly random orientation; such invariance permits synthetic data to be generated from rotations and flips of the training images \citep[see, \eg,][]{2014arXiv1409.1556S}. Each image is fed into the network along with four augmented versions, thus increasing the total training sample by a factor of five.
 
+This technique is called data augmentation, and is particularly helpful for the network to learn uncommon truth values (\eg, in our case, very metal-poor or metal-rich galaxies). Each training-augmentation is fed-forward through the network and gradient contributions are computed together as part of the same batch. A similar process is applied to the network during predictions, which is known as test-time augmentation (TTA), whereby synthetic images are generated according to the same rules applied to the training data set. The CNN predicts an ensemble average over the augmented images, which tends to further improve RMSE by a few percent.
 
 % Don't change these lines
 \bsp	% typesetting comment
