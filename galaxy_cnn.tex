@@ -158,7 +158,7 @@ We find that the mode of the binned predicted metallicity distribution is higher
 \begin{figure}
 	\includegraphics[width=\columnwidth]{02-prediction_summary.pdf}
 	\caption{\label{fig:predicting-metallicity}
-		Bivariate distribution of true galaxy metallicity ($Z_{\rm true}$) and CNN predictions ($Z_{\rm pred}$) are shown in the main panel. Overlaid are the median predicted metallicity, solid red line, RMSE scatter, dashed blue line, NMAD scatter, dashed orange line, in bins of $Z_{\rm true}$. The solid black line shows the one-to-one relation. A distribution of residuals ($Z_{\rm pred} - Z_{\rm true}$) is shown in the inset plot. In the upper panel, we again show the binned scatter, where the size of each marker is proportional to the number of galaxies in that bin. Each horizontal line corresponds to the average scatter over the entire test data set (and global value indicated in the upper panel legend).}
+		Bivariate distribution of true galaxy metallicity ($Z_{\rm true}$) and CNN predictions ($Z_{\rm pred}$) are shown in the main panel. Overlaid are the median predicted metallicity (solid red line), RMSE scatter (dashed red lines), and NMAD scatter (dashed blue lines), in bins of $Z_{\rm true}$. The solid black line shows the one-to-one relation. A distribution of residuals ($Z_{\rm pred} - Z_{\rm true}$) is shown in the inset plot. In the upper panel, we again show the binned scatter, where the size of each marker is proportional to the number of galaxies in that bin. Each horizontal line corresponds to the average scatter over the entire test data set (and global value indicated in the upper panel legend).}
 \end{figure}
 
 In Figure~\ref{fig:predicting-metallicity}, we compare the distributions of $Z_{\rm true}$ and $Z_{\rm pred}$ using a two-dimensional histogram (shown in grayscale in the main, larger panel). We also show the median predictions varying with binned $Z_{\rm true}$ (solid red line), in addition to the scatter in RMSE (dashed blue) and NMAD (dashed orange), and also the one-to-one line (solid black). The running median agrees well with the one-to-one line, although at low metallicity we find that the CNN makes makes overpredictions.
@@ -182,7 +182,7 @@ RMSE is a robust measure of both local and global scatter (although it becomes b
 \begin{figure}
 	\includegraphics[width=\columnwidth]{04-resolution.pdf}
 	\caption{\label{fig:resolution}
-		The effects of image resolution on CNN performance. Blue and orange circular markers indicate scatter in the residual distribution ($\Delta Z$) measured using RMSE and NMAD, respectively. (Each point is analogous to the horizontal lines shown in Figure~\ref{fig:predicting-metallicity}.) We also show predictions from a random forest algorithm as stars-shaped markers, and constant $\langle Z_{\rm true}\rangle$ predictions as square markers.}
+		The effects of image resolution on CNN performance. Red and blue circular markers indicate scatter in the residual distribution ($\Delta Z$) measured using RMSE and NMAD, respectively. (Each point is analogous to the horizontal lines shown in Figure~\ref{fig:predicting-metallicity}.) We also show predictions from a random forest algorithm as stars-shaped markers, and constant $\langle Z_{\rm true}\rangle$ predictions as square markers.}
 \end{figure}
 
 Because our methodology is so computationally light, we can run the same CNN training and test procedure on images scaled to different sizes in order to understand the effects of image resolution. Our initial results use SDSS $15\arcsec \times 15 \arcsec$ cutouts resized to $128\times 128$ pixels, and we now downsample the same images to $64\times 64$, $32 \times 32$, $\cdots$, $2\times 2$, and even $1\times 1$ pixels via re-binning. All images retain their three channels, so the smallest $1 \times 1$ image is effectively the pixels in each of the \sdssi\sdssr\sdssg{} bands averaged together with the background and possible neighboring sources.
@@ -237,7 +237,7 @@ The FMR connects the instantaneous ($\sim 10$ Myr) SFR with the gas-phase metall
 	\includegraphics[width=\columnwidth]{05-a-prediction_mass.pdf}
 	\includegraphics[width=\columnwidth]{05-b-prediction_mzr.pdf}
 	\caption{\label{fig:mass-metallicity}
-		In the left panel, we show the CNN predicted galaxy stellar mass against true stellar mass. Colors and marker or line styles are the same as in Figure~\ref{fig:predicting-metallicity}. In the right panel, we compare the predicted stellar mass converted to metallicity, assuming the \citealt{Tremonti2004} MZR, with the true metallicity.
+		In the left panel, we show the CNN predicted galaxy stellar mass against true stellar mass. Colors and marker or line styles are the same as in Figure~\ref{fig:predicting-metallicity}. In the right panel, we compare the predicted stellar mass converted to metallicity, assuming the \citet{Tremonti2004} MZR, against the true metallicity.
 		}
 \end{figure*}
 
