@@ -111,17 +111,6 @@ where for a Gaussian-distributed $x$, the NMAD will also approximate the standar
 NMAD has the distinct advantage in that it is insensitive to outliers and can be useful for measuring scatter.
 However, unlike the RMSE, which quantifies the typical scatter distributed about a center of zero, NMAD only describes the scatter around the (potentially non-zero) median.
 
-% Glossary of terminology:
-% \begin{itemize}
-% 	\item $Z \equiv 12 + \log ({\rm O/H})$ is the nebular phase metallicity
-% 	\item $Z_{\rm true}$ is the spectroscopically derived metallicity
-% 	\item $Z_{\rm pred}$ is the CNN predicted metallicity
-% 	\item $\Delta Z \equiv Z_{\rm pred} - Z_{\rm true}$ is the residual, or error
-% 	\item RMSE~$\equiv \sqrt{\langle |\hat y - y|^2\rangle}$ is the root-mean squared error.
-% 	The RMSE loss function is minimized during CNN training.
-% 	\item NMAD~$\approx 1.4826 \times {\rm median} \big (\big|x - {\rm median }(x) \big|\big )$ is the normal median absolute deviation
-% \end{itemize}
-
 \section{Results}\label{sec:results}
 
 \subsection{Example predictions}
