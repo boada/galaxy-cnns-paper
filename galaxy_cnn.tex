@@ -31,8 +31,43 @@
 \graphicspath{{./figures/}}
 
 %%%%% AUTHORS - PLACE YOUR OWN COMMANDS HERE %%%%%
-\input{commands.tex}
+%%% Filters %%%
+\newcommand{\sdssu}{\hbox{$u$}}
+\newcommand{\sdssg}{\hbox{$g$}}
+\newcommand{\sdssr}{\hbox{$r$}}
+\newcommand{\sdssi}{\hbox{$i$}}
+\newcommand{\sdssz}{\hbox{$z$}}
 
+%%% Astronomy Abreviations %%%
+\newcommand{\mstar}{\hbox{$M_{\star}$}}
+\newcommand{\lstar}{\hbox{L$_{\star}$}}
+\newcommand{\Msol}{\hbox{$M_\odot$}}
+\newcommand{\msol}{\hbox{$M_\odot$}}
+\newcommand{\Zsol}{\hbox{$Z_\odot$}}
+\newcommand{\zsol}{\hbox{$Z_\odot$}}
+
+%%% Units %%%
+\newcommand{\kms}{\hbox{km~s$^{-1}$}}
+\newcommand{\cms}{\hbox{cm~s$^{-1}$}}
+\newcommand{\degree}{\hbox{$^\circ$}}
+\newcommand{\degsq}{\hbox{degree$^2$}}
+\newcommand{\arcminsq}{\hbox{arcmin$^2$}}
+\newcommand{\um}{\hbox{$\mu$m}}
+
+%%% per Units %%%
+\newcommand{\perarcminsq}{\hbox{arcmin$^{-2}$}}
+\newcommand{\perdegsq}{\hbox{degree$^{-2}$}}
+\newcommand{\permpc}{\hbox{Mpc$^{-1}$}}
+\newcommand{\permpcsq}{\hbox{Mpc$^{-2}$}}
+\newcommand{\permpccu}{\hbox{Mpc$^{-3}$}}
+\newcommand{\percmsq}{\hbox{cm$^{-2}$}}
+\newcommand{\percmcu}{\hbox{cm$^{-3}$}}
+\newcommand{\perpixel}{\hbox{pixel$^{-1}$}}
+
+%%% General %%%
+\newcommand{\eg}{e.g.}
+\newcommand{\ie}{i.e.}
+\newcommand{\citeeg}[1]{(\eg, \citealt{#1})}
 \newcommand{\editorial}[1]{\textcolor{red}{#1}}
 
 %%%%%%%%%%%%%%%%%%% TITLE PAGE %%%%%%%%%%%%%%%%%%%
@@ -306,12 +341,357 @@ University of Colorado Boulder, University of Oxford, University of Portsmouth,
 University of Utah, University of Virginia, University of Washington, University of Wisconsin,
 Vanderbilt University, and Yale University.
 
-
-
 %%%%%%%%%%%%%%%%%%%% REFERENCES %%%%%%%%%%%%%%%%%%
 % The best way to enter references is to use BibTeX:
 \bibliographystyle{mnras}
-\bibliography{bibliography,boada-bib} % if your bibtex file is called example.bib
+%\bibliography{bibliography,boada-bib} % if your bibtex file is called example.bib
+
+\begin{thebibliography}{}
+\makeatletter
+\relax
+\def\mn@urlcharsother{\let\do\@makeother \do\$\do\&\do\#\do\^\do\_\do\%\do\~}
+\def\mn@doi{\begingroup\mn@urlcharsother \@ifnextchar [ {\mn@doi@}
+  {\mn@doi@[]}}
+\def\mn@doi@[#1]#2{\def\@tempa{#1}\ifx\@tempa\@empty \href
+  {http://dx.doi.org/#2} {doi:#2}\else \href {http://dx.doi.org/#2} {#1}\fi
+  \endgroup}
+\def\mn@eprint#1#2{\mn@eprint@#1:#2::\@nil}
+\def\mn@eprint@arXiv#1{\href {http://arxiv.org/abs/#1} {{\tt arXiv:#1}}}
+\def\mn@eprint@dblp#1{\href {http://dblp.uni-trier.de/rec/bibtex/#1.xml}
+  {dblp:#1}}
+\def\mn@eprint@#1:#2:#3:#4\@nil{\def\@tempa {#1}\def\@tempb {#2}\def\@tempc
+  {#3}\ifx \@tempc \@empty \let \@tempc \@tempb \let \@tempb \@tempa \fi \ifx
+  \@tempb \@empty \def\@tempb {arXiv}\fi \@ifundefined
+  {mn@eprint@\@tempb}{\@tempb:\@tempc}{\expandafter \expandafter \csname
+  mn@eprint@\@tempb\endcsname \expandafter{\@tempc}}}
+
+\bibitem[\protect\citeauthoryear{Abolfathi et~al.,}{Abolfathi
+  et~al.}{2018}]{Abolfathi2017}
+Abolfathi B.,  et~al., 2018, \mn@doi [\apjs] {10.3847/1538-4365/aa9e8a}, 235, 42
+
+\bibitem[\protect\citeauthoryear{Ackermann, Schawinski, Zhang, Weigel  \&
+  Turp}{Ackermann et~al.}{2018}]{Ackermann2018}
+Ackermann S.,  Schawinski K.,  Zhang C.,  Weigel A.~K.,   Turp M.~D.,  2018,
+  \mn@doi [\mnras]
+  {10.1093/mnras/sty1398}, 479, 415
+
+\bibitem[\protect\citeauthoryear{Acquaviva}{Acquaviva}{2016}]{Acquaviva2016}
+Acquaviva V.,  2016, \mn@doi [\mnras] {10.1093/mnras/stv2703}, 456, 1618
+
+\bibitem[\protect\citeauthoryear{{Bailer-Jones}}{{Bailer-Jones}}{2000}]{2000A&A...357..197B}
+{Bailer-Jones} C.~A.~L.,  2000, \aap, \href
+  {http://adsabs.harvard.edu/abs/2000A%26A...357..197B} {357, 197}
+
+\bibitem[\protect\citeauthoryear{Beck et~al.,}{Beck et~al.}{2018}]{Beck2018}
+Beck M.~R.,  et~al., 2018, \mn@doi [\mnras] {10.1093/mnras/sty503}, 476, 5516
+
+\bibitem[\protect\citeauthoryear{Brinchmann, Charlot, White, Tremonti,
+  Kauffmann, Heckman  \& Brinkmann}{Brinchmann et~al.}{2004}]{Brinchmann2004}
+Brinchmann J.,  Charlot S.,  White S. D.~M.,  Tremonti C.,  Kauffmann G.,
+  Heckman T.,   Brinkmann J.,  2004, \mn@doi [\mnras] {10.1111/j.1365-2966.2004.07881.x}, 351, 1151
+
+\bibitem[\protect\citeauthoryear{{Brooks}, {Governato}, {Booth}, {Willman},
+  {Gardner}, {Wadsley}, {Stinson}  \& {Quinn}}{{Brooks}
+  et~al.}{2007}]{Brooks2007}
+{Brooks} A.~M.,  {Governato} F.,  {Booth} C.~M.,  {Willman} B.,  {Gardner}
+  J.~P.,  {Wadsley} J.,  {Stinson} G.,   {Quinn} T.,  2007, \mn@doi [\apjl]
+  {10.1086/511765}, \href {http://adsabs.harvard.edu/abs/2007ApJ...655L..17B}
+  {655, L17}
+
+\bibitem[\protect\citeauthoryear{Dahlen et~al.,}{Dahlen
+  et~al.}{2013}]{Dahlen2013}
+Dahlen T.,  et~al., 2013, \mn@doi [\apj]
+  {10.1088/0004-637X/775/2/93}, 775, 93
+
+\bibitem[\protect\citeauthoryear{Dai \& Tong}{Dai \& Tong}{2018}]{Dai2018}
+Dai J.-M.,  Tong J.,  2018, preprint (\mn@eprint {arXiv} {1807.05657})
+
+\bibitem[\protect\citeauthoryear{{Dalcanton}, {Yoachim}  \&
+  {Bernstein}}{{Dalcanton} et~al.}{2004}]{Dalcanton2004}
+{Dalcanton} J.~J.,  {Yoachim} P.,   {Bernstein} R.~A.,  2004, \mn@doi [\apj]
+  {10.1086/386358}, \href {http://adsabs.harvard.edu/abs/2004ApJ...608..189D}
+  {608, 189}
+
+\bibitem[\protect\citeauthoryear{{Dav{\'e}}, {Finlator}  \&
+  {Oppenheimer}}{{Dav{\'e}} et~al.}{2012}]{Dave2012}
+{Dav{\'e}} R.,  {Finlator} K.,   {Oppenheimer} B.~D.,  2012, \mn@doi [\mnras]
+  {10.1111/j.1365-2966.2011.20148.x}, \href
+  {http://adsabs.harvard.edu/abs/2012MNRAS.421...98D} {421, 98}
+
+\bibitem[\protect\citeauthoryear{Dieleman, Willett  \& Dambre}{Dieleman
+  et~al.}{2015}]{Dieleman2015}
+Dieleman S.,  Willett K.~W.,   Dambre J.,  2015, \mn@doi [\mnras] {10.1093/mnras/stv632}, 450, 1441
+
+\bibitem[\protect\citeauthoryear{Fabbro, Venn, O'Briain, Bialek, Kielty,
+  Jahandar  \& Monty}{Fabbro et~al.}{2018}]{Fabbro2018}
+Fabbro S.,  Venn K.~A.,  O'Briain T.,  Bialek S.,  Kielty C.~L.,  Jahandar F.,
+   Monty S.,  2018, \mn@doi [\mnras]
+  {10.1093/mnras/stx3298}, 475, 2978
+
+\bibitem[\protect\citeauthoryear{{Freedman} \& {Diaconis}}{{Freedman} \&
+  {Diaconis}}{1981}]{Freedman1981}
+{Freedman} D.,  {Diaconis} P.,  1981, {Zeitschrift f{\"u}r
+  Wahrscheinlichkeitstheorie und Verwandte Gebiete}, 57, 453
+
+\bibitem[\protect\citeauthoryear{{Garnett}}{{Garnett}}{2002}]{2002ApJ...581.1019G}
+{Garnett} D.~R.,  2002, \mn@doi [\apj] {10.1086/344301}, \href
+  {http://adsabs.harvard.edu/abs/2002ApJ...581.1019G} {581, 1019}
+
+\bibitem[\protect\citeauthoryear{{He}, {Zhang}, {Ren}  \& {Sun}}{{He}
+  et~al.}{2015}]{He2015}
+{He} K.,  {Zhang} X.,  {Ren} S.,   {Sun} J.,  2015, preprint, \href
+  {http://adsabs.harvard.edu/abs/2015arXiv151203385H} {} (\mn@eprint {arXiv}
+  {1512.03385})
+
+\bibitem[\protect\citeauthoryear{{Hezaveh}, {Levasseur}  \&
+  {Marshall}}{{Hezaveh} et~al.}{2017}]{Hezaveh2017}
+{Hezaveh} Y.~D.,  {Levasseur} L.~P.,   {Marshall} P.~J.,  2017, \mn@doi [\nat]
+  {10.1038/nature23463}, \href
+  {http://adsabs.harvard.edu/abs/2017Natur.548..555H} {548, 555}
+
+\bibitem[\protect\citeauthoryear{{Hinton}, {Srivastava}, {Krizhevsky},
+  {Sutskever}  \& {Salakhutdinov}}{{Hinton} et~al.}{2012}]{dropout}
+{Hinton} G.~E.,  {Srivastava} N.,  {Krizhevsky} A.,  {Sutskever} I.,
+  {Salakhutdinov} R.~R.,  2012, preprint, \href
+  {http://adsabs.harvard.edu/abs/2012arXiv1207.0580H} {} (\mn@eprint {arXiv}
+  {1207.0580})
+
+\bibitem[\protect\citeauthoryear{Hocking, Geach, Sun  \& Davey}{Hocking
+  et~al.}{2018}]{Hocking2018}
+Hocking A.,  Geach J.~E.,  Sun Y.,   Davey N.,  2018, \mn@doi [\mnras] {10.1093/mnras/stx2351}, 473, 1108
+
+\bibitem[\protect\citeauthoryear{{Hopkins} et~al.,}{{Hopkins}
+  et~al.}{2003}]{Hopkins2003}
+{Hopkins} A.~M.,  et~al., 2003, \mn@doi [\apj] {10.1086/379608}, \href
+  {http://adsabs.harvard.edu/abs/2003ApJ...599..971H} {599, 971}
+
+\bibitem[\protect\citeauthoryear{Howard et~al.}{Howard et~al.}{2018}]{fastai}
+Howard J.,  et~al., 2018, fastai, \url{https://github.com/fastai/fastai}
+
+\bibitem[\protect\citeauthoryear{Huertas-Company et~al.,}{Huertas-Company
+  et~al.}{2015}]{Huertas-Company2015}
+Huertas-Company M.,  et~al., 2015, \mn@doi [\apjs] {10.1088/0067-0049/221/1/8}, 221, 8
+
+\bibitem[\protect\citeauthoryear{Huertas-Company et~al.,}{Huertas-Company
+  et~al.}{2018}]{Huertas-Company2018}
+Huertas-Company M.,  et~al., 2018, \mn@doi [\apj]
+  {10.3847/1538-4357/aabfed}, 858, 114
+
+\bibitem[\protect\citeauthoryear{Hunter}{Hunter}{2007}]{Hunter2007}
+Hunter J.~D.,  2007, \mn@doi [Computing in Science {\&} Engineering]
+  {10.1109/MCSE.2007.55}, 9, 90
+
+\bibitem[\protect\citeauthoryear{Ilbert et~al.,}{Ilbert
+  et~al.}{2009}]{Ilbert2009}
+Ilbert O.,  et~al., 2009, \mn@doi [\apj]
+  {10.1088/0004-637X/690/2/1236}, 690, 1236
+
+\bibitem[\protect\citeauthoryear{{Ioffe} \& {Szegedy}}{{Ioffe} \&
+  {Szegedy}}{2015}]{batchnorm}
+{Ioffe} S.,  {Szegedy} C.,  2015, preprint, \href
+  {http://adsabs.harvard.edu/abs/2015arXiv150203167I} {} (\mn@eprint {arXiv}
+  {1502.03167})
+
+\bibitem[\protect\citeauthoryear{Kauffmann et~al.,}{Kauffmann
+  et~al.}{2003}]{Kauffmann2003a}
+Kauffmann G.,  et~al., 2003, \mn@doi [\mnras] {10.1046/j.1365-8711.2003.06291.x}, 341, 33
+
+\bibitem[\protect\citeauthoryear{Kim \& Brunner}{Kim \&
+  Brunner}{2017}]{Kim2017}
+Kim E.~J.,  Brunner R.~J.,  2017, \mn@doi [\mnras] {10.1093/mnras/stw2672}, 464, 4463
+
+\bibitem[\protect\citeauthoryear{Kingma \& Ba}{Kingma \& Ba}{2014}]{Kingma2014}
+Kingma D.~P.,  Ba J.,  2014, arXiv preprint arXiv:1412.6980
+
+\bibitem[\protect\citeauthoryear{Krizhevsky, Sutskever  \& Hinton}{Krizhevsky
+  et~al.}{2012}]{Krizhevsky2012}
+Krizhevsky A.,  Sutskever I.,   Hinton G.~E.,  2012, \mn@doi [Proceedings of
+  the 25th International Conference on Neural Information Processing Systems -
+  Volume 1] {10.1145/3065386}, 60, 1097
+
+\bibitem[\protect\citeauthoryear{Krogh \& Hertz}{Krogh \&
+  Hertz}{1992}]{Krogh1992}
+Krogh A.,  Hertz J.~A.,  1992, in Advances in neural information processing
+  systems. pp 950--957
+
+\bibitem[\protect\citeauthoryear{{Kroupa}}{{Kroupa}}{2001}]{Kroupa2001}
+{Kroupa} P.,  2001, \mn@doi [\mnras] {10.1046/j.1365-8711.2001.04022.x}, \href
+  {https://ui.adsabs.harvard.edu/#abs/2001MNRAS.322..231K} {322, 231}
+
+\bibitem[\protect\citeauthoryear{{LSST Dark Energy Science
+  Collaboration}}{{LSST Dark Energy Science Collaboration}}{2012}]{LSST2012}
+{LSST Dark Energy Science Collaboration} 2012, arXiv preprint arXiv:1211.0310,
+  p.~133
+
+\bibitem[\protect\citeauthoryear{Lanusse, Ma, Li, Collett, Li, Ravanbakhsh,
+  Mandelbaum  \& P{\'{o}}czos}{Lanusse et~al.}{2018}]{Lanusse2017}
+Lanusse F.,  Ma Q.,  Li N.,  Collett T.~E.,  Li C.-L.,  Ravanbakhsh S.,
+  Mandelbaum R.,   P{\'{o}}czos B.,  2018, \mn@doi [\mnras] {10.1093/mnras/stx1665}, 473, 3895
+
+\bibitem[\protect\citeauthoryear{LeCun, Boser, Denker, Henderson, Howard,
+  Hubbard  \& Jackel}{LeCun et~al.}{1989}]{LeCun1989}
+LeCun Y.,  Boser B.,  Denker J.~S.,  Henderson D.,  Howard R.~E.,  Hubbard W.,
+   Jackel L.~D.,  1989, \mn@doi [Neural Computation]
+  {10.1162/neco.1989.1.4.541}, 1, 541
+
+\bibitem[\protect\citeauthoryear{{Leitner} \& {Kravtsov}}{{Leitner} \&
+  {Kravtsov}}{2011}]{2011ApJ...734...48L}
+{Leitner} S.~N.,  {Kravtsov} A.~V.,  2011, \mn@doi [\apj]
+  {10.1088/0004-637X/734/1/48}, \href
+  {http://adsabs.harvard.edu/abs/2011ApJ...734...48L} {734, 48}
+
+\bibitem[\protect\citeauthoryear{{Lilly}, {Carollo}, {Pipino}, {Renzini}  \&
+  {Peng}}{{Lilly} et~al.}{2013}]{2013ApJ...772..119L}
+{Lilly} S.~J.,  {Carollo} C.~M.,  {Pipino} A.,  {Renzini} A.,   {Peng} Y.,
+  2013, \mn@doi [\apj] {10.1088/0004-637X/772/2/119}, \href
+  {https://ui.adsabs.harvard.edu/#abs/2013ApJ...772..119L} {772, 119}
+
+\bibitem[\protect\citeauthoryear{{Loshchilov} \& {Hutter}}{{Loshchilov} \&
+  {Hutter}}{2016}]{SGDR}
+{Loshchilov} I.,  {Hutter} F.,  2016, preprint, \href
+  {http://adsabs.harvard.edu/abs/2016arXiv160803983L} {} (\mn@eprint {arXiv}
+  {1608.03983})
+
+\bibitem[\protect\citeauthoryear{Loshchilov \& Hutter}{Loshchilov \&
+  Hutter}{2017}]{Loshchilov2017}
+Loshchilov I.,  Hutter F.,  2017, arXiv preprint arXiv:1711.05101
+
+\bibitem[\protect\citeauthoryear{Lupton, Blanton, Fekete, Hogg, O'Mullane,
+  Szalay  \& Wherry}{Lupton et~al.}{2004}]{Lupton2004}
+Lupton R.,  Blanton M.~R.,  Fekete G.,  Hogg D.~W.,  O'Mullane W.,  Szalay A.,
+   Wherry N.,  2004, \mn@doi [\pasp] {10.1086/382245}, 116, 133
+
+\bibitem[\protect\citeauthoryear{Mannucci, Cresci, Maiolino, Marconi  \&
+  Gnerucci}{Mannucci et~al.}{2010}]{Mannucci2010}
+Mannucci F.,  Cresci G.,  Maiolino R.,  Marconi A.,   Gnerucci A.,  2010,
+  \mn@doi [\mnras]
+  {10.1111/j.1365-2966.2010.17291.x}, 408, 2115
+
+\bibitem[\protect\citeauthoryear{Molino et~al.,}{Molino
+  et~al.}{2017}]{Molino2017}
+Molino A.,  et~al., 2017, \mn@doi [\mnras] {10.1093/mnras/stx1243}, 470, 95
+
+\bibitem[\protect\citeauthoryear{Nair \& Hinton}{Nair \&
+  Hinton}{2010}]{Nair2010}
+Nair V.,  Hinton G.~E.,  2010, in Proceedings of the 27th International
+  Conference on International Conference on Machine Learning. ICML'10.
+Omnipress, USA, pp 807--814, \url
+  {http://dl.acm.org/citation.cfm?id=3104322.3104425}
+
+\bibitem[\protect\citeauthoryear{Ntampaka, Trac, Sutherland, Battaglia,
+  P{\'{o}}czos  \& Schneider}{Ntampaka et~al.}{2015}]{Ntampaka2015}
+Ntampaka M.,  Trac H.,  Sutherland D.~J.,  Battaglia N.,  P{\'{o}}czos B.,
+  Schneider J.,  2015, \mn@doi [\apj]
+  {10.1088/0004-637X/803/2/50}, 803, 50
+
+\bibitem[\protect\citeauthoryear{Ntampaka, Trac, Cisewski  \& Price}{Ntampaka
+  et~al.}{2017}]{Ntampaka2016}
+Ntampaka M.,  Trac H.,  Cisewski J.,   Price L.~C.,  2017, \mn@doi [The
+  Astrophysical Journal] {10.3847/1538-4357/835/1/106}, 835, 106
+
+\bibitem[\protect\citeauthoryear{Oke}{Oke}{1974}]{Oke1974}
+Oke J.~B.,  1974, \mn@doi [\apjs]
+  {10.1086/190287}, 27, 21
+
+\bibitem[\protect\citeauthoryear{Pan \& Yang}{Pan \& Yang}{2010}]{Pan2010}
+Pan S.~J.,  Yang Q.,  2010, \mn@doi [IEEE Trans. on Knowl. and Data Eng.]
+  {10.1109/TKDE.2009.191}, 22, 1345
+
+\bibitem[\protect\citeauthoryear{Paszke et~al.,}{Paszke et~al.}{2017}]{pytorch}
+Paszke A.,  et~al., 2017, in NIPS-W.
+
+\bibitem[\protect\citeauthoryear{Pedregosa et~al.,}{Pedregosa
+  et~al.}{2012}]{Pedregosa2012}
+Pedregosa F.,  et~al., 2012, Journal of Machine Learning Research, 12, 2825
+
+\bibitem[\protect\citeauthoryear{Perez \& Granger}{Perez \&
+  Granger}{2007}]{Perez2007}
+Perez F.,  Granger B.~E.,  2007, \mn@doi [Computing in Science {\&}
+  Engineering] {10.1109/MCSE.2007.53}, 9, 21
+
+\bibitem[\protect\citeauthoryear{Petrillo et~al.,}{Petrillo
+  et~al.}{2017}]{Petrillo2017}
+Petrillo C.~E.,  et~al., 2017, \mn@doi [\mnras] {10.1093/mnras/stx2052}, 472, 1129
+
+\bibitem[\protect\citeauthoryear{Petrillo et~al.,}{Petrillo
+  et~al.}{2018}]{Petrillo2018}
+Petrillo C.~E.,  et~al., 2018, eprint arXiv:1807.04764
+
+\bibitem[\protect\citeauthoryear{Petrosian}{Petrosian}{1976}]{Petrosian1976}
+Petrosian V.,  1976, \mn@doi [\apj] {10.1086/182253}, 209,
+  L1
+
+\bibitem[\protect\citeauthoryear{{Russakovsky} et~al.,}{{Russakovsky}
+  et~al.}{2014}]{ImageNet}
+{Russakovsky} O.,  et~al., 2014, preprint, \href
+  {http://adsabs.harvard.edu/abs/2014arXiv1409.0575R} {} (\mn@eprint {arXiv}
+  {1409.0575})
+
+\bibitem[\protect\citeauthoryear{Salim et~al.,}{Salim et~al.}{2007}]{Salim2007}
+Salim S.,  et~al., 2007, \mn@doi [\apjs]
+  {10.1086/519218}, 173, 267
+
+\bibitem[\protect\citeauthoryear{{S{\'a}nchez} et~al.,}{{S{\'a}nchez}
+  et~al.}{2013}]{2013A&A...554A..58S}
+{S{\'a}nchez} S.~F.,  et~al., 2013, \mn@doi [\aap]
+  {10.1051/0004-6361/201220669}, \href
+  {http://adsabs.harvard.edu/abs/2013A%26A...554A..58S} {554, A58}
+
+\bibitem[\protect\citeauthoryear{Scherer, M{\"u}ller  \& Behnke}{Scherer
+  et~al.}{2010}]{Scherer2010}
+Scherer D.,  M{\"u}ller A.,   Behnke S.,  2010, in , Artificial Neural
+  Networks--ICANN 2010.
+Springer, pp 92--101
+
+\bibitem[\protect\citeauthoryear{{Simmons} et~al.,}{{Simmons}
+  et~al.}{2017}]{2017MNRAS.464.4420S}
+{Simmons} B.~D.,  et~al., 2017, \mn@doi [\mnras] {10.1093/mnras/stw2587}, \href
+  {http://adsabs.harvard.edu/abs/2017MNRAS.464.4420S} {464, 4420}
+
+\bibitem[\protect\citeauthoryear{{Simonyan} \& {Zisserman}}{{Simonyan} \&
+  {Zisserman}}{2014}]{2014arXiv1409.1556S}
+{Simonyan} K.,  {Zisserman} A.,  2014, preprint, \href
+  {http://adsabs.harvard.edu/abs/2014arXiv1409.1556S} {} (\mn@eprint {arXiv}
+  {1409.1556})
+
+\bibitem[\protect\citeauthoryear{Smirnov \& Markov}{Smirnov \&
+  Markov}{2017}]{Smirnov2017}
+Smirnov E.~A.,  Markov A.~B.,  2017, \mn@doi [\mnras] {10.1093/mnras/stx999}, 469, 2024
+
+\bibitem[\protect\citeauthoryear{{Smith}}{{Smith}}{2015}]{CLR}
+{Smith} L.~N.,  2015, preprint, \href
+  {http://adsabs.harvard.edu/abs/2015arXiv150601186S} {} (\mn@eprint {arXiv}
+  {1506.01186})
+
+\bibitem[\protect\citeauthoryear{{The Dark Energy Survey Collaboration}}{{The
+  Dark Energy Survey Collaboration}}{2005}]{DES2005}
+{The Dark Energy Survey Collaboration} 2005, eprint arXiv:astro-ph/0510346,
+  p.~42
+
+\bibitem[\protect\citeauthoryear{Tremonti et~al.,}{Tremonti
+  et~al.}{2004}]{Tremonti2004}
+Tremonti C.~A.,  et~al., 2004, \mn@doi [\apj]
+  {10.1086/423264}, 613, 898
+
+\bibitem[\protect\citeauthoryear{Xu, Ho, Trac, Schneider, Poczos  \&
+  Ntampaka}{Xu et~al.}{2013}]{Xu2013}
+Xu X.,  Ho S.,  Trac H.,  Schneider J.,  Poczos B.,   Ntampaka M.,  2013,
+  \mn@doi [\apj] {10.1088/0004-637X/772/2/147}, 772, 147
+
+\bibitem[\protect\citeauthoryear{York et~al.,}{York et~al.}{2000}]{York2000}
+York D.~G.,  et~al., 2000, \mn@doi [\aj] {10.1086/301513},
+  120, 1579
+
+\bibitem[\protect\citeauthoryear{Zeiler \& Fergus}{Zeiler \&
+  Fergus}{2014}]{Zeiler2014}
+Zeiler M.~D.,  Fergus R.,  2014, in Fleet D.,  Pajdla T.,  Schiele B.,
+  Tuytelaars T.,  eds, Computer Vision -- ECCV 2014. Springer, Cham, Cham, pp
+  818--833, \mn@doi{10.1007/978-3-319-10590-1_53}, \url
+  {http://link.springer.com/10.1007/978-3-319-10590-1{\_}53}
+
+\makeatother
+\end{thebibliography}
+
 
 %%%%%%%%%%%%%%%%% APPENDICES %%%%%%%%%%%%%%%%%%%%%
 \appendix
